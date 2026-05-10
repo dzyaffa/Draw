@@ -337,6 +337,91 @@
     color: var(--muted);
     font-size: 12px;
   }
+
+  .tool-card.clickable {
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .tool-card.clickable:active {
+    transform: scale(0.97);
+    border-color: var(--accent);
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 20px;
+  }
+  .modal-overlay.open {
+    display: flex;
+  }
+  .modal-box {
+    background: #1e1e2e;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .modal-box .modal-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    margin: 0 auto 12px;
+  }
+  .modal-box h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .modal-box p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .modal-box .url-preview {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    word-break: break-all;
+  }
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  .modal-buttons button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-cancel {
+    background: var(--border);
+    color: var(--muted);
+  }
+  .btn-go {
+    background: var(--accent);
+    color: #0f0f13;
+  }
 </style>
 </head>
 <body>
@@ -763,22 +848,22 @@
   <p style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">Aplikasi yang dibutuhkan</p>
 </div>
 <div class="tools">
-  <div class="tool-card">
+  <div class="tool-card clickable" onclick="showModal('Ibis Paint X','Kamu akan diarahkan ke halaman download Ibis Paint X di Play Store.','https://play.google.com/store/apps/details?id=jp.ne.ibis.ibispaintx.app','https://www.google.com/s2/favicons?domain=ibispaint.com&sz=64')">
     <img src="https://www.google.com/s2/favicons?domain=ibispaint.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
     <h4>Ibis Paint X</h4>
     <p>Aplikasi utama. Gratis, fitur lengkap, paling populer untuk gambar digital di HP.</p>
   </div>
-  <div class="tool-card">
+  <div class="tool-card clickable" onclick="showModal('Line of Action','Kamu akan diarahkan ke website latihan pose gesture.','https://line-of-action.com','https://www.google.com/s2/favicons?domain=line-of-action.com&sz=64')">
     <img src="https://www.google.com/s2/favicons?domain=line-of-action.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
     <h4>Line of Action</h4>
     <p>line-of-action.com — latihan pose gesture dengan timer. Buka di browser HP.</p>
   </div>
-  <div class="tool-card">
+  <div class="tool-card clickable" onclick="showModal('Pinterest','Kamu akan diarahkan ke halaman download Pinterest di Play Store.','https://play.google.com/store/apps/details?id=com.pinterest','https://www.google.com/s2/favicons?domain=pinterest.com&sz=64')">
     <img src="https://www.google.com/s2/favicons?domain=pinterest.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
     <h4>Pinterest</h4>
     <p>Cari referensi pose, ekspresi, dan gaya gambar. Simpan ke board khusus belajar.</p>
   </div>
-  <div class="tool-card">
+  <div class="tool-card clickable" onclick="showChannelPicker()">
     <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
     <h4>YouTube</h4>
     <p>Channel: Marc Brunet, Nadiaxel, Lemia Sari (Indonesia). Gratis & lengkap.</p>
@@ -789,7 +874,73 @@
   <p>Dibuat dengan ❤️ · Konsisten > Berbakat · Selamat belajar!</p>
 </footer>
 
+<!-- Channel Picker Modal -->
+<div class="modal-overlay" id="channelOverlay" onclick="closeChannelModal(event)">
+  <div class="modal-box">
+    <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" class="modal-icon">
+    <h3>Pilih Channel</h3>
+    <p>Pilih channel tutorial yang ingin kamu buka:</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+      <button onclick="goChannel('https://www.youtube.com/@marccbrunet')" style="background:#1e1e2e;border:1px solid #2a2a3a;color:#e8e8f0;padding:12px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left;">🎨 Marc Brunet — EN</button>
+      <button onclick="goChannel('https://www.youtube.com/@Nadiaxel')" style="background:#1e1e2e;border:1px solid #2a2a3a;color:#e8e8f0;padding:12px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left;">✏️ Nadiaxel — EN</button>
+      <button onclick="goChannel('https://www.youtube.com/@LemiaSari')" style="background:#1e1e2e;border:1px solid #2a2a3a;color:#e8e8f0;padding:12px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left;">🇮🇩 Lemia Sari — Indonesia</button>
+    </div>
+    <button class="btn-cancel" style="width:100%;padding:12px;border-radius:10px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;background:#2a2a3a;color:#8888aa;" onclick="document.getElementById('channelOverlay').classList.remove('open')">Batal</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box">
+    <img id="modalIcon" class="modal-icon" src="">
+    <h3 id="modalTitle"></h3>
+    <p id="modalDesc"></p>
+    <div class="url-preview" id="modalUrl"></div>
+    <div class="modal-buttons">
+      <button class="btn-cancel" onclick="document.getElementById('modalOverlay').classList.remove('open')">Batal</button>
+      <button class="btn-go" id="modalBtn" onclick="goToLink()">Buka Sekarang</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  let currentLink = '';
+
+  function showModal(title, desc, url, icon) {
+    currentLink = url;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalDesc').textContent = desc;
+    document.getElementById('modalUrl').textContent = url;
+    document.getElementById('modalIcon').src = icon;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function goToLink() {
+    window.open(currentLink, '_blank');
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function closeModal(e) {
+    if (e.target.id === 'modalOverlay') {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+  }
+
+  function showChannelPicker() {
+    document.getElementById('channelOverlay').classList.add('open');
+  }
+
+  function closeChannelModal(e) {
+    if (e.target.id === 'channelOverlay') {
+      document.getElementById('channelOverlay').classList.remove('open');
+    }
+  }
+
+  function goChannel(url) {
+    window.open(url, '_blank');
+    document.getElementById('channelOverlay').classList.remove('open');
+  }
+
   function togglePhase(header) {
     const content = header.nextElementSibling;
     const arrow = header.querySelector('span:last-child');

@@ -33,6 +33,25 @@
     position: relative;
   }
 
+  .mini-bar {
+    position: fixed;
+    top: -60px;
+    left: 0; right: 0;
+    z-index: 100;
+    background: rgba(15,15,19,0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: top 0.3s ease;
+  }
+
+  .mini-bar.visible {
+    top: 0;
+  }
+
   header::before {
     content: '';
     position: absolute;
@@ -78,6 +97,10 @@
     justify-content: center;
     margin: 24px 0 0;
     flex-wrap: wrap;
+  }
+
+  .mini-bar .progress-bar {
+    margin: 0;
   }
 
   .progress-dot {
@@ -129,21 +152,27 @@
   .phase-number {
     width: 36px; height: 36px;
     border-radius: 50%;
-    background: var(--accent);
-    color: #0f0f13;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
+    background: linear-gradient(135deg, #f5d060, #c8962a);
+    color: #1a1000;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 17px;
+    font-weight: bold;
+    font-style: italic;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
+    box-shadow: 0 2px 8px rgba(200,150,42,0.4);
   }
 
-  .phase-number.red { background: var(--accent2); }
-  .phase-number.blue { background: #6b9fff; }
-  .phase-number.green { background: #6bffb8; color: #0f0f13; }
-  .phase-number.purple { background: #c46bff; }
-  .phase-number.orange { background: #ffab6b; color: #0f0f13; }
+  .phase-number.red,
+  .phase-number.blue,
+  .phase-number.green,
+  .phase-number.purple,
+  .phase-number.orange {
+    background: linear-gradient(135deg, #f5d060, #c8962a);
+    color: #1a1000;
+  }
 
   .phase-title {
     flex: 1;
@@ -230,9 +259,10 @@
     max-width: 680px;
     margin: 32px auto 0;
     background: var(--card);
-    border: 1px solid var(--accent);
+    border: 1px solid #2a4a7f;
     border-radius: 12px;
     padding: 20px;
+    box-shadow: 0 0 16px rgba(42,74,127,0.25);
   }
 
   .routine h3 {
@@ -284,6 +314,9 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .tool-card h4 {
@@ -312,17 +345,30 @@
   <div class="tag">Panduan Lengkap</div>
   <h1>Tutorial<br><span>Menggambar Digital</span></h1>
   <p class="subtitle">Dari nol sampai bisa jual karya — step by step</p>
-  <div class="progress-bar">
-    <div class="progress-dot active"></div>
-    <div class="progress-dot active"></div>
-    <div class="progress-dot active"></div>
-    <div class="progress-dot active"></div>
-    <div class="progress-dot active"></div>
-    <div class="progress-dot"></div>
-    <div class="progress-dot"></div>
-    <div class="progress-dot"></div>
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-dot" data-phase="0"></div>
+    <div class="progress-dot" data-phase="1"></div>
+    <div class="progress-dot" data-phase="2"></div>
+    <div class="progress-dot" data-phase="3"></div>
+    <div class="progress-dot" data-phase="4"></div>
+    <div class="progress-dot" data-phase="5"></div>
+    <div class="progress-dot" data-phase="6"></div>
+    <div class="progress-dot" data-phase="7"></div>
   </div>
 </header>
+
+<div class="mini-bar" id="miniBar">
+  <div class="progress-bar" id="miniDots">
+    <div class="progress-dot" data-phase="0"></div>
+    <div class="progress-dot" data-phase="1"></div>
+    <div class="progress-dot" data-phase="2"></div>
+    <div class="progress-dot" data-phase="3"></div>
+    <div class="progress-dot" data-phase="4"></div>
+    <div class="progress-dot" data-phase="5"></div>
+    <div class="progress-dot" data-phase="6"></div>
+    <div class="progress-dot" data-phase="7"></div>
+  </div>
+</div>
 
 <div class="timeline">
 
@@ -718,19 +764,23 @@
 </div>
 <div class="tools">
   <div class="tool-card">
-    <h4>📱 Ibis Paint X</h4>
+    <img src="https://www.google.com/s2/favicons?domain=ibispaint.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
+    <h4>Ibis Paint X</h4>
     <p>Aplikasi utama. Gratis, fitur lengkap, paling populer untuk gambar digital di HP.</p>
   </div>
   <div class="tool-card">
-    <h4>🎯 Line of Action</h4>
+    <img src="https://www.google.com/s2/favicons?domain=line-of-action.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
+    <h4>Line of Action</h4>
     <p>line-of-action.com — latihan pose gesture dengan timer. Buka di browser HP.</p>
   </div>
   <div class="tool-card">
-    <h4>📚 Pinterest</h4>
+    <img src="https://www.google.com/s2/favicons?domain=pinterest.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
+    <h4>Pinterest</h4>
     <p>Cari referensi pose, ekspresi, dan gaya gambar. Simpan ke board khusus belajar.</p>
   </div>
   <div class="tool-card">
-    <h4>▶️ YouTube</h4>
+    <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
+    <h4>YouTube</h4>
     <p>Channel: Marc Brunet, Nadiaxel, Lemia Sari (Indonesia). Gratis & lengkap.</p>
   </div>
 </div>
@@ -746,6 +796,44 @@
     content.classList.toggle('open');
     arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
   }
+
+  // Progress dots scroll tracking
+  const phases = document.querySelectorAll('.phase');
+  const dots = document.querySelectorAll('.progress-dot');
+
+  function updateDots() {
+    let current = 0;
+    phases.forEach((phase, i) => {
+      const rect = phase.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.5) {
+        current = i;
+      }
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i <= current);
+    });
+  }
+
+  const miniBar = document.getElementById('miniBar');
+  const miniDotsList = miniBar.querySelectorAll('.progress-dot');
+  const headerEl = document.querySelector('header');
+
+  function onScroll() {
+    updateDots();
+    // sync mini dots
+    miniDotsList.forEach((dot, i) => {
+      dot.classList.toggle('active', dots[i].classList.contains('active'));
+    });
+    // show/hide mini bar
+    if (window.scrollY > headerEl.offsetHeight - 20) {
+      miniBar.classList.add('visible');
+    } else {
+      miniBar.classList.remove('visible');
+    }
+  }
+
+  window.addEventListener('scroll', onScroll);
+  updateDots();
 </script>
 
 </body>

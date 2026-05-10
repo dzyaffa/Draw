@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial Menggambar Manga Digital</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0f0f13;
+    --card: #1a1a24;
+    --accent: #e8c84a;
+    --accent2: #ff6b6b;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --border: #2a2a3a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    line-height: 1.7;
+    padding: 24px 16px 60px;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 0 32px;
+    position: relative;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(232,200,74,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: #0f0f13;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 3px;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .progress-bar {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 24px 0 0;
+    flex-wrap: wrap;
+  }
+
+  .progress-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .progress-dot.active { background: var(--accent); }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+  }
+
+  .phase {
+    margin-bottom: 12px;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    padding: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .phase-header:hover { border-color: var(--accent); }
+
+  .phase-number {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0f0f13;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .phase-number.red { background: var(--accent2); }
+  .phase-number.blue { background: #6b9fff; }
+  .phase-number.green { background: #6bffb8; color: #0f0f13; }
+  .phase-number.purple { background: #c46bff; }
+  .phase-number.orange { background: #ffab6b; color: #0f0f13; }
+
+  .phase-title {
+    flex: 1;
+  }
+
+  .phase-title h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .phase-title .week {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .phase-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 0 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+
+  .phase-content.open {
+    max-height: 1000px;
+    padding: 16px;
+  }
+
+  .step-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .step-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text strong {
+    display: block;
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+
+  .step-text p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .tip-box {
+    background: rgba(232,200,74,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .tip-box strong { color: var(--accent); }
+
+  /* Daily routine */
+  .routine {
+    max-width: 680px;
+    margin: 32px auto 0;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .routine h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .routine-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .routine-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .routine-time {
+    background: var(--accent);
+    color: #0f0f13;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .routine-desc {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  /* Tools */
+  .tools {
+    max-width: 680px;
+    margin: 20px auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .tool-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .tool-card h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .tool-card p {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Panduan Lengkap</div>
+  <h1>Tutorial<br><span>Menggambar Digital</span></h1>
+  <p class="subtitle">Dari nol sampai bisa jual karya — step by step</p>
+  <div class="progress-bar">
+    <div class="progress-dot active"></div>
+    <div class="progress-dot active"></div>
+    <div class="progress-dot active"></div>
+    <div class="progress-dot active"></div>
+    <div class="progress-dot active"></div>
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+  </div>
+</header>
+
+<div class="timeline">
+
+  <!-- FASE 1 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number">1</div>
+      <div class="phase-title">
+        <div class="week">Minggu 1–2</div>
+        <h2>Kenalan dengan Aplikasi & Latihan Garis</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content open">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">📲</span>
+          <div class="step-text">
+            <strong>Install Ibis Paint X</strong>
+            <p>Download di Play Store, gratis. Buka → New Canvas → pilih ukuran A4 (2480×3508px) resolusi 300dpi.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">✏️</span>
+          <div class="step-text">
+            <strong>Kenali tool dasar</strong>
+            <p>Pen tool (G-Pen), Eraser, Layer, dan Undo. Jangan pelajari semua dulu — 4 ini cukup untuk mulai.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">📏</span>
+          <div class="step-text">
+            <strong>Latihan garis lurus</strong>
+            <p>Buat layer kosong. Tarik garis horizontal panjang dari ujung ke ujung tanpa angkat pena. Ulangi 20× tiap hari. Gerakan dari siku, bukan pergelangan.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">〰️</span>
+          <div class="step-text">
+            <strong>Latihan garis lengkung</strong>
+            <p>Gambar busur besar dan kecil. Tujuannya agar tangan terbiasa mengontrol tablet/layar dengan smooth.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">⭕</span>
+          <div class="step-text">
+            <strong>Latihan bentuk dasar</strong>
+            <p>Gambar lingkaran, kotak, dan segitiga secara freehand. Ini fondasi semua gambar. Lakukan 10 menit setiap hari.</p>
+          </div>
+        </li>
+      </ul>
+      <div class="tip-box">💡 <strong>Tips:</strong> Aktifkan fitur "Stabilizer" di Ibis Paint untuk membantu garis lebih smooth. Setting di angka 5–7 untuk pemula.</div>
+    </div>
+  </div>
+
+  <!-- FASE 2 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number red">2</div>
+      <div class="phase-title">
+        <div class="week">Minggu 3–4</div>
+        <h2>Wajah Manga Dasar</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">⭕</span>
+          <div class="step-text">
+            <strong>Skull shape (bentuk kepala)</strong>
+            <p>Gambar lingkaran → tarik garis lurus ke bawah dari sisi kiri dan kanan → pertemukan di titik dagu runcing. Ini struktur dasar kepala manga.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">➕</span>
+          <div class="step-text">
+            <strong>Garis panduan (cross line)</strong>
+            <p>Gambar garis vertikal di tengah kepala (untuk simetri). Garis horizontal di tengah-bawah lingkaran (posisi mata). Ini guide line — akan dihapus nanti.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">👁️</span>
+          <div class="step-text">
+            <strong>Posisi mata</strong>
+            <p>Mata ada di garis horizontal tadi. Jarak antar mata = 1 mata. Mata manga = persegi panjang melengkung ke bawah, dengan pupil besar dan highlight putih kecil di pojok.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">👃</span>
+          <div class="step-text">
+            <strong>Hidung & mulut</strong>
+            <p>Hidung manga = titik kecil atau garis kecil, di tengah antara mata dan dagu. Mulut = garis tipis + sedikit lekukan, letaknya ⅓ dari bawah hidung ke dagu.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">👂</span>
+          <div class="step-text">
+            <strong>Telinga</strong>
+            <p>Posisi telinga sejajar antara garis mata (atas) dan garis hidung (bawah). Bentuk seperti huruf C terbalik.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🔄</span>
+          <div class="step-text">
+            <strong>Flip canvas untuk cek simetri</strong>
+            <p>Ibis Paint punya fitur flip horizontal. Gunakan ini setiap 5–10 menit untuk mendeteksi wajah yang miring tanpa sadar.</p>
+          </div>
+        </li>
+      </ul>
+      <div class="tip-box">💡 <strong>Tips:</strong> Gambar guide line di layer terpisah. Setelah selesai, tinggal hapus layer itu tanpa merusak gambar utama.</div>
+    </div>
+  </div>
+
+  <!-- FASE 3 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number blue">3</div>
+      <div class="phase-title">
+        <div class="week">Minggu 5–6</div>
+        <h2>Mata & Ekspresi</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">👁️</span>
+          <div class="step-text">
+            <strong>Struktur mata manga</strong>
+            <p>Layer 1: outline mata (garis tebal di atas, tipis di bawah). Layer 2: pupil bulat besar. Layer 3: highlight (titik putih). Layer 4: bayangan gelap di bagian atas iris.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">😊</span>
+          <div class="step-text">
+            <strong>Ekspresi dasar</strong>
+            <p>Senang: mata setengah tutup + ujung mulut naik. Marah: alis turun ke tengah + mata menyipit. Sedih: alis ujungnya naik ke dalam + mata berkaca-kaca. Kaget: mata dan mulut bulat terbuka lebar.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🎯</span>
+          <div class="step-text">
+            <strong>Latihan referensi</strong>
+            <p>Pilih 1 karakter manga favorit. Copy pose wajahnya (bukan trace) dengan mengamati dan menggambar ulang dari ingatan. Lakukan untuk 5 ekspresi berbeda.</p>
+          </div>
+        </li>
+      </ul>
+      <div class="tip-box">💡 <strong>Tips:</strong> Mata adalah pusat ekspresi karakter manga. Lebih baik kuasai mata dulu sebelum lanjut ke bagian lain.</div>
+    </div>
+  </div>
+
+  <!-- FASE 4 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number green">4</div>
+      <div class="phase-title">
+        <div class="week">Minggu 7–8</div>
+        <h2>Rambut</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">📍</span>
+          <div class="step-text">
+            <strong>Titik mahkota (crown point)</strong>
+            <p>Semua rambut berasal dari 1–2 titik di atas kepala. Tandai dulu titik ini sebelum mulai menggambar rambut.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🖌️</span>
+          <div class="step-text">
+            <strong>Gambar per kelompok (clump)</strong>
+            <p>Jangan gambar helai satu-satu. Gambar "gumpalan" rambut besar dulu → baru tambah detail helai di dalam gumpalan. Ini cara yang dipakai semua ilustrator profesional.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">↓</span>
+          <div class="step-text">
+            <strong>Arah rambut</strong>
+            <p>Rambut mengikuti gravitasi (ke bawah) dan bentuk kepala. Bagian atas kepala rambut menempel mengikuti skull. Bagian ujung rambut lebih bebas bergerak.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">✨</span>
+          <div class="step-text">
+            <strong>Highlight rambut</strong>
+            <p>Buat layer baru di atas layer rambut. Set ke mode "Add" atau "Screen". Gambar garis terang di bagian yang kena cahaya. Hasilnya langsung keliatan keren.</p>
+          </div>
+        </li>
+      </ul>
+      <div class="tip-box">💡 <strong>Tips:</strong> Rambut gambarmu di gambar pertama sudah bagus! Tinggal di-polish dengan teknik clump ini biar lebih konsisten.</div>
+    </div>
+  </div>
+
+  <!-- FASE 5 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number purple">5</div>
+      <div class="phase-title">
+        <div class="week">Minggu 9–10</div>
+        <h2>Proporsi Tubuh</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">📐</span>
+          <div class="step-text">
+            <strong>Sistem kepala sebagai satuan</strong>
+            <p>Ukur tinggi kepala karakter. Tubuh manga = 6–7× tinggi kepala. Gambar kotak-kotak dulu sesuai jumlah kepala, baru isi dengan tubuh.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🦴</span>
+          <div class="step-text">
+            <strong>Skeleton / stick figure dulu</strong>
+            <p>Sebelum gambar detail, buat kerangka sederhana (garis-garis untuk tulang). Kepala = lingkaran, badan = persegi panjang, anggota = garis. Ini namanya "gesture drawing".</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">📦</span>
+          <div class="step-text">
+            <strong>Blockout dengan bentuk dasar</strong>
+            <p>Setelah skeleton, gambar kotak-kotak untuk setiap bagian tubuh. Dada = kotak besar, pinggul = kotak lebih kecil, paha = silinder, dll. Baru di-refine jadi bentuk final.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🌐</span>
+          <div class="step-text">
+            <strong>Latihan di Line of Action</strong>
+            <p>Buka line-of-action.com di HP. Pilih mode "Figure" → timer 30 detik. Gambar ulang pose yang muncul secepat mungkin. Latihan ini meningkatkan kemampuan pose dengan cepat.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FASE 6 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number orange">6</div>
+      <div class="phase-title">
+        <div class="week">Minggu 11–12</div>
+        <h2>Tangan & Jari</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">✋</span>
+          <div class="step-text">
+            <strong>Struktur tangan</strong>
+            <p>Telapak = persegi agak membulat. Jempol keluar dari sisi bawah-kiri telapak. 4 jari lainnya keluar dari atas telapak dengan panjang berbeda (jari tengah terpanjang).</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🔲</span>
+          <div class="step-text">
+            <strong>Jari = 3 kotak</strong>
+            <p>Setiap jari terdiri dari 3 segmen (falang). Gambar 3 kotak memanjang yang sedikit meruncing ke ujung. Tambahkan sendi di tiap sambungan.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🤳</span>
+          <div class="step-text">
+            <strong>Pakai tangan sendiri sebagai referensi</strong>
+            <p>Foto tanganmu sendiri dengan berbagai pose menggunakan kamera HP. Gunakan foto itu sebagai referensi saat menggambar. Ini cara paling efektif dan gratis.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🔁</span>
+          <div class="step-text">
+            <strong>Gambar 5 pose tangan per hari</strong>
+            <p>Pose dasar: mengepal, terbuka, menunjuk, memegang sesuatu, pose peace. Ulangi sampai hafal strukturnya tanpa referensi.</p>
+          </div>
+        </li>
+      </ul>
+      <div class="tip-box">💡 <strong>Tips:</strong> Tangan itu susah untuk semua orang. Bahkan ilustrator profesional masih sering pakai referensi. Tidak perlu malu pakai foto tangan sendiri.</div>
+    </div>
+  </div>
+
+  <!-- FASE 7 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number">7</div>
+      <div class="phase-title">
+        <div class="week">Minggu 13–14</div>
+        <h2>Line Art Bersih & Shading Dasar</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">🖊️</span>
+          <div class="step-text">
+            <strong>Line art dengan variasi ketebalan</strong>
+            <p>Garis luar (outline) tubuh = tebal. Garis detail dalam (lipatan baju, detail wajah) = tipis. Variasi ini yang bikin gambar keliatan "hidup" dan profesional.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🗂️</span>
+          <div class="step-text">
+            <strong>Sistem layer yang rapi</strong>
+            <p>Urutan dari bawah ke atas: (1) Sketch/Rough, (2) Line Art, (3) Base Color, (4) Shadow, (5) Highlight. Beri nama tiap layer biar tidak bingung.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🌑</span>
+          <div class="step-text">
+            <strong>Shading dasar (cel shading)</strong>
+            <p>Tentukan sumber cahaya (misal dari kiri atas). Bagian yang tidak kena cahaya = gelap. Di layer baru dengan mode "Multiply", warnai area bayangan dengan warna gelap transparan.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FASE 8 -->
+  <div class="phase">
+    <div class="phase-header" onclick="togglePhase(this)">
+      <div class="phase-number red">8</div>
+      <div class="phase-title">
+        <div class="week">Minggu 15–16</div>
+        <h2>Portofolio & Mulai Jual</h2>
+      </div>
+      <span>▼</span>
+    </div>
+    <div class="phase-content">
+      <ul class="step-list">
+        <li>
+          <span class="step-icon">🗂️</span>
+          <div class="step-text">
+            <strong>Kumpulkan 5–6 karya terbaik</strong>
+            <p>Pilih yang paling polish. Boleh campur: portrait, full body, ekspresi berbeda. Ini yang akan jadi "etalase" kamu di Fiverr atau media sosial.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">📸</span>
+          <div class="step-text">
+            <strong>Upload ke Instagram / Twitter</strong>
+            <p>Buat akun khusus untuk karya. Pakai hashtag: #mangaart #digitalart #commissionsopen. Ini cara paling cepat dapat klien pertama.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">💼</span>
+          <div class="step-text">
+            <strong>Buka Fiverr Gig</strong>
+            <p>Gig pertama: "I will draw manga/anime portrait for you". Harga mulai $5–$10. Terima saja order apapun dulu untuk dapat review pertama. Review adalah segalanya di Fiverr.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🇮🇩</span>
+          <div class="step-text">
+            <strong>Alternatif lokal</strong>
+            <p>Tawarkan jasa di grup Facebook "Komisi Ilustrasi Indonesia" atau Twitter lokal. Pasar lokal lebih mudah dikomunikasikan dan tidak butuh bahasa Inggris.</p>
+          </div>
+        </li>
+      </ul>
+      <div class="tip-box">💡 <strong>Tips:</strong> Harga murah di awal bukan berarti rugi — kamu investasi untuk dapat review & portofolio. Naikkan harga setelah dapat 5–10 review positif.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Daily Routine -->
+<div class="routine">
+  <h3>⏱️ Rutinitas Harian (30 Menit)</h3>
+  <div class="routine-items">
+    <div class="routine-item">
+      <span class="routine-time">5 menit</span>
+      <span class="routine-desc">Latihan garis & bentuk dasar (warm-up)</span>
+    </div>
+    <div class="routine-item">
+      <span class="routine-time">15 menit</span>
+      <span class="routine-desc">Latihan fokus sesuai fase minggu ini</span>
+    </div>
+    <div class="routine-item">
+      <span class="routine-time">10 menit</span>
+      <span class="routine-desc">Gambar bebas / coba ulang dari referensi</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tools -->
+<div style="max-width:680px;margin:20px auto 0;">
+  <p style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">Aplikasi yang dibutuhkan</p>
+</div>
+<div class="tools">
+  <div class="tool-card">
+    <h4>📱 Ibis Paint X</h4>
+    <p>Aplikasi utama. Gratis, fitur lengkap, paling populer untuk manga digital di HP.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🎯 Line of Action</h4>
+    <p>line-of-action.com — latihan pose gesture dengan timer. Buka di browser HP.</p>
+  </div>
+  <div class="tool-card">
+    <h4>📚 Pinterest</h4>
+    <p>Cari referensi pose, ekspresi, dan gaya gambar. Simpan ke board khusus belajar.</p>
+  </div>
+  <div class="tool-card">
+    <h4>▶️ YouTube</h4>
+    <p>Channel: Marc Brunet, Nadiaxel, Lemia Sari (Indonesia). Gratis & lengkap.</p>
+  </div>
+</div>
+
+<footer>
+  <p>Dibuat dengan ❤️ · Konsisten > Berbakat · Selamat belajar!</p>
+</footer>
+
+<script>
+  function togglePhase(header) {
+    const content = header.nextElementSibling;
+    const arrow = header.querySelector('span:last-child');
+    content.classList.toggle('open');
+    arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
+  }
+</script>
+
+</body>
+</html>

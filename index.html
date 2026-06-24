@@ -25,6 +25,8 @@
     font-family: 'Nunito', sans-serif;
     line-height: 1.7;
     padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
   }
 
   header {
@@ -111,6 +113,15 @@
 
   .progress-dot.active { background: var(--accent); }
 
+  /* Constellation canvas - ABOVE everything */
+  #constellationCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
   /* Timeline */
   .timeline {
     position: relative;
@@ -118,8 +129,7 @@
     margin: 0 auto;
   }
 
-  .timeline::before {
-    content: '';
+  .timeline-laser {
     position: absolute;
     left: 28px;
     top: 0; bottom: 0;
@@ -128,10 +138,55 @@
     z-index: 0;
   }
 
+  /* Laser beam - JS controlled */
+  .timeline-laser::after {
+    display: none; /* handled by JS now */
+  }
+
+  #laserBeam {
+    position: absolute;
+    left: -2px;
+    width: 6px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #fff9c4cc, var(--accent), var(--accent2), transparent);
+    border-radius: 50%;
+    filter: blur(2px);
+    box-shadow: 0 0 8px var(--accent), 0 0 16px var(--accent);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 2;
+  }
+
+  /* Glow pulse on the static line */
+  .timeline-laser::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0; bottom: 0;
+    width: 4px;
+    background: inherit;
+    filter: blur(3px);
+    opacity: 0.5;
+    animation: linePulse 2.8s ease-in-out infinite;
+  }
+
+  @keyframes linePulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+  }
+
   .phase {
     position: relative;
     z-index: 1;
     margin-bottom: 12px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .phase.visible {
+    opacity: 1;
+    transform: translateX(0);
   }
 
   .phase-header {
@@ -144,10 +199,35 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     position: relative;
-    transition: border-color 0.2s;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+    overflow: hidden;
   }
 
-  .phase-header:hover { border-color: var(--accent); }
+  /* shimmer sweep on hover */
+  .phase-header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(232,200,74,0.08), transparent);
+    transition: left 0.4s ease;
+    pointer-events: none;
+  }
+
+  .phase-header:hover::after { left: 150%; }
+
+  .phase-header:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(232,200,74,0.2), inset 0 0 20px rgba(232,200,74,0.04);
+    transform: translateX(3px);
+  }
+
+  /* open state glow */
+  .phase-header.opened {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(232,200,74,0.25);
+  }
 
   .phase-number {
     width: 36px; height: 36px;
@@ -199,12 +279,13 @@
     padding: 0 16px;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s ease, padding 0.3s ease;
+    transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease, box-shadow 0.3s ease;
   }
 
   .phase-content.open {
     max-height: 1000px;
     padding: 16px;
+    box-shadow: 0 4px 20px rgba(232,200,74,0.08);
   }
 
   .step-list {
@@ -426,10 +507,12 @@
 </head>
 <body>
 
+<canvas id="constellationCanvas"></canvas>
+
 <header>
   <div class="tag">Panduan Lengkap</div>
   <h1>Tutorial<br><span>Menggambar Digital</span></h1>
-  <p class="subtitle">Dari nol sampai bisa jual karya — step by step</p>
+  <p class="subtitle">Dari nol sampai jago — step by step</p>
   <div class="progress-bar" id="progressBar">
     <div class="progress-dot" data-phase="0"></div>
     <div class="progress-dot" data-phase="1"></div>
@@ -438,7 +521,6 @@
     <div class="progress-dot" data-phase="4"></div>
     <div class="progress-dot" data-phase="5"></div>
     <div class="progress-dot" data-phase="6"></div>
-    <div class="progress-dot" data-phase="7"></div>
   </div>
 </header>
 
@@ -451,11 +533,11 @@
     <div class="progress-dot" data-phase="4"></div>
     <div class="progress-dot" data-phase="5"></div>
     <div class="progress-dot" data-phase="6"></div>
-    <div class="progress-dot" data-phase="7"></div>
   </div>
 </div>
 
 <div class="timeline">
+  <div class="timeline-laser"><div id="laserBeam"></div></div>
 
   <!-- FASE 1 -->
   <div class="phase">
@@ -463,7 +545,7 @@
       <div class="phase-number">1</div>
       <div class="phase-title">
         <div class="week">Minggu 1–2</div>
-        <h2>Kenalan dengan Aplikasi & Latihan Garis</h2>
+        <h2>Setup Aplikasi & Kontrol Garis</h2>
       </div>
       <span>▼</span>
     </div>
@@ -473,39 +555,46 @@
           <span class="step-icon">📲</span>
           <div class="step-text">
             <strong>Install Ibis Paint X</strong>
-            <p>Download di Play Store, gratis. Buka → New Canvas → pilih ukuran A4 (2480×3508px) resolusi 300dpi.</p>
+            <p>Download gratis di Play Store / App Store. Buka → New Canvas → ukuran <strong>2000×2000px, 72dpi</strong> untuk latihan. Pakai A4 300dpi hanya kalau mau cetak.</p>
           </div>
         </li>
         <li>
-          <span class="step-icon">✏️</span>
+          <span class="step-icon">🗂️</span>
           <div class="step-text">
-            <strong>Kenali tool dasar</strong>
-            <p>Pen tool (G-Pen), Eraser, Layer, dan Undo. Jangan pelajari semua dulu — 4 ini cukup untuk mulai.</p>
+            <strong>Pahami 4 tool wajib dulu</strong>
+            <p><strong>Pen (G-Pen)</strong> untuk menggambar, <strong>Eraser</strong> untuk hapus, <strong>Layer</strong> untuk memisahkan elemen, <strong>Undo (Ctrl+Z / 2 jari)</strong>. Jangan pelajari tool lain dulu sampai 4 ini terasa natural.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">📏</span>
           <div class="step-text">
-            <strong>Latihan garis lurus</strong>
-            <p>Buat layer kosong. Tarik garis horizontal panjang dari ujung ke ujung tanpa angkat pena. Ulangi 20× tiap hari. Gerakan dari siku, bukan pergelangan.</p>
+            <strong>Latihan garis lurus — gerakan dari siku</strong>
+            <p>Tarik garis horizontal panjang dari ujung ke ujung tanpa angkat stylus. Gerakannya dari <em>siku</em>, bukan pergelangan — ini yang bikin garis panjang lebih stabil. Ulangi 20× tiap sesi.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">〰️</span>
           <div class="step-text">
-            <strong>Latihan garis lengkung</strong>
-            <p>Gambar busur besar dan kecil. Tujuannya agar tangan terbiasa mengontrol tablet/layar dengan smooth.</p>
+            <strong>Latihan garis lengkung & busur</strong>
+            <p>Gambar busur besar (seperti senyum) dari kiri ke kanan dengan satu tarikan. Jangan angkat pena di tengah jalan. Ini melatih <em>muscle memory</em> tangan untuk gerakan smooth.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">⭕</span>
           <div class="step-text">
-            <strong>Latihan bentuk dasar</strong>
-            <p>Gambar lingkaran, kotak, dan segitiga secara freehand. Ini fondasi semua gambar. Lakukan 10 menit setiap hari.</p>
+            <strong>Latihan bentuk dasar freehand</strong>
+            <p>Gambar lingkaran, kotak, dan segitiga tanpa bantuan ruler. Semua objek di dunia bisa dipecah jadi bentuk dasar ini. Kerjakan 10 menit tiap hari — ini fondasi segalanya.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">⚙️</span>
+          <div class="step-text">
+            <strong>Aktifkan Stabilizer</strong>
+            <p>Di Ibis Paint, ketuk ikon Pen → geser slider <strong>Stabilizer ke 5–7</strong>. Fitur ini memperlambat ujung garis sedikit agar hasilnya lebih mulus — wajib untuk pemula.</p>
           </div>
         </li>
       </ul>
-      <div class="tip-box">💡 <strong>Tips:</strong> Aktifkan fitur "Stabilizer" di Ibis Paint untuk membantu garis lebih smooth. Setting di angka 5–7 untuk pemula.</div>
+      <div class="tip-box">💡 <strong>Ingat:</strong> Urutan yang benar adalah fondasi segalanya — kontrol tangan dulu baru bentuk, proporsi, baru shading. Lewati tahap ini dan kamu akan mentok di tahap berikutnya.</div>
     </div>
   </div>
 
@@ -515,7 +604,7 @@
       <div class="phase-number red">2</div>
       <div class="phase-title">
         <div class="week">Minggu 3–4</div>
-        <h2>Wajah Dasar</h2>
+        <h2>Proporsi Wajah & Struktur Kepala</h2>
       </div>
       <span>▼</span>
     </div>
@@ -524,47 +613,47 @@
         <li>
           <span class="step-icon">⭕</span>
           <div class="step-text">
-            <strong>Skull shape (bentuk kepala)</strong>
-            <p>Gambar lingkaran → tarik garis lurus ke bawah dari sisi kiri dan kanan → pertemukan di titik dagu runcing. Ini struktur dasar kepala.</p>
+            <strong>Bentuk kepala dasar</strong>
+            <p>Mulai dari lingkaran (cranium). Tarik 2 garis ke bawah dari sisi kiri-kanan lingkaran → pertemukan di dagu. Untuk gaya anime, dagu lebih runcing. Untuk realis, dagu lebih lebar dan bulat.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">➕</span>
           <div class="step-text">
-            <strong>Garis panduan (cross line)</strong>
-            <p>Gambar garis vertikal di tengah kepala (untuk simetri). Garis horizontal di tengah-bawah lingkaran (posisi mata). Ini guide line — akan dihapus nanti.</p>
+            <strong>Cross line — panduan posisi fitur wajah</strong>
+            <p>Garis <strong>vertikal</strong> di tengah = sumbu simetri. Garis <strong>horizontal</strong> di tengah kepala = batas posisi mata. Gambar di layer terpisah agar bisa dihapus setelah selesai.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">👁️</span>
           <div class="step-text">
-            <strong>Posisi mata</strong>
-            <p>Mata ada di garis horizontal tadi. Jarak antar mata = 1 mata. Mata gambar = persegi panjang melengkung ke bawah, dengan pupil besar dan highlight putih kecil di pojok.</p>
+            <strong>Proporsi mata yang benar</strong>
+            <p>Mata diletakkan <em>tepat di garis horizontal</em>. Jarak antar 2 mata = 1 lebar mata (ini aturan universal, berlaku untuk anime maupun realis). Terlalu jauh atau terlalu dekat = wajah keliatan aneh.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">👃</span>
           <div class="step-text">
-            <strong>Hidung & mulut</strong>
-            <p>Hidung gambar = titik kecil atau garis kecil, di tengah antara mata dan dagu. Mulut = garis tipis + sedikit lekukan, letaknya ⅓ dari bawah hidung ke dagu.</p>
+            <strong>Posisi hidung & mulut</strong>
+            <p>Hidung = ½ jarak antara garis mata ke dagu. Mulut = ⅔ jarak dari hidung ke dagu. Ini proporsi standar — hafalkan sebagai patokan, bukan aturan kaku.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">👂</span>
           <div class="step-text">
-            <strong>Telinga</strong>
-            <p>Posisi telinga sejajar antara garis mata (atas) dan garis hidung (bawah). Bentuk seperti huruf C terbalik.</p>
+            <strong>Posisi telinga</strong>
+            <p>Bagian atas telinga sejajar dengan garis mata. Bagian bawah telinga sejajar dengan ujung hidung. Telinga berada di samping kepala, bukan di belakang.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🔄</span>
           <div class="step-text">
-            <strong>Flip canvas untuk cek simetri</strong>
-            <p>Ibis Paint punya fitur flip horizontal. Gunakan ini setiap 5–10 menit untuk mendeteksi wajah yang miring tanpa sadar.</p>
+            <strong>Flip canvas untuk deteksi error</strong>
+            <p>Ibis Paint punya tombol flip horizontal (ikon cermin). Gunakan tiap 5–10 menit menggambar. Wajah yang terasa benar tapi sebenarnya miring akan langsung ketahuan saat di-flip.</p>
           </div>
         </li>
       </ul>
-      <div class="tip-box">💡 <strong>Tips:</strong> Gambar guide line di layer terpisah. Setelah selesai, tinggal hapus layer itu tanpa merusak gambar utama.</div>
+      <div class="tip-box">💡 <strong>Ingat:</strong> Proporsi wajah bukan soal menghafal, tapi soal melatih mata untuk melihat. Gambar wajah yang sama 10× dengan referensi berbeda-beda — progres lu akan kelihatan jelas.</div>
     </div>
   </div>
 
@@ -583,26 +672,33 @@
         <li>
           <span class="step-icon">👁️</span>
           <div class="step-text">
-            <strong>Struktur mata</strong>
-            <p>Layer 1: outline mata (garis tebal di atas, tipis di bawah). Layer 2: pupil bulat besar. Layer 3: highlight (titik putih). Layer 4: bayangan gelap di bagian atas iris.</p>
+            <strong>Anatomi mata (layer per layer)</strong>
+            <p><strong>Layer 1:</strong> outline mata — garis atas <em>tebal</em>, garis bawah <em>tipis</em>. <strong>Layer 2:</strong> iris bulat besar (isi warna dasar). <strong>Layer 3:</strong> pupil gelap di tengah iris. <strong>Layer 4:</strong> shadow gelap di bagian atas iris (bawah kelopak). <strong>Layer 5:</strong> highlight — titik putih kecil di pojok iris atas. Highlight inilah yang bikin mata "hidup".</p>
           </div>
         </li>
         <li>
-          <span class="step-icon">😊</span>
+          <span class="step-icon">🎭</span>
           <div class="step-text">
-            <strong>Ekspresi dasar</strong>
-            <p>Senang: mata setengah tutup + ujung mulut naik. Marah: alis turun ke tengah + mata menyipit. Sedih: alis ujungnya naik ke dalam + mata berkaca-kaca. Kaget: mata dan mulut bulat terbuka lebar.</p>
+            <strong>Ekspresi = alis + mata + mulut</strong>
+            <p>Ekspresi bukan cuma dari mulut. Alis adalah kunci utama: <strong>Senang</strong> — alis normal, ujung mulut naik, mata setengah menutup. <strong>Marah</strong> — alis dalam turun ke tengah, mata menyipit. <strong>Sedih</strong> — bagian dalam alis naik ke atas, sudut mulut turun. <strong>Kaget</strong> — alis naik tinggi, mata dan mulut terbuka lebar, bentuk O.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🎯</span>
           <div class="step-text">
-            <strong>Latihan referensi</strong>
-            <p>Pilih 1 karakter gambar favorit. Copy pose wajahnya (bukan trace) dengan mengamati dan menggambar ulang dari ingatan. Lakukan untuk 5 ekspresi berbeda.</p>
+            <strong>Latihan referensi — bukan trace</strong>
+            <p>Cari 1 karakter gambar yang lu suka. Amati matanya, tutup referensi, gambar dari ingatan. Bandingkan. Ulangi. Ini jauh lebih efektif dari menjiplak karena melatih <em>visual memory</em> lu.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">📐</span>
+          <div class="step-text">
+            <strong>Konsistensi ukuran 2 mata</strong>
+            <p>Kesalahan umum pemula: mata kanan dan kiri ukurannya beda. Gambar kotak panduan (bounding box) untuk tiap mata sebelum mulai — pastikan kotak kiri dan kanan sama besar.</p>
           </div>
         </li>
       </ul>
-      <div class="tip-box">💡 <strong>Tips:</strong> Mata adalah pusat ekspresi karakter gambar. Lebih baik kuasai mata dulu sebelum lanjut ke bagian lain.</div>
+      <div class="tip-box">💡 <strong>Ingat:</strong> Mata adalah pusat ekspresi karakter. Kuasai struktur mata dengan benar sebelum lanjut — ini investasi jangka panjang yang paling penting di awal belajar.</div>
     </div>
   </div>
 
@@ -621,33 +717,40 @@
         <li>
           <span class="step-icon">📍</span>
           <div class="step-text">
-            <strong>Titik mahkota (crown point)</strong>
-            <p>Semua rambut berasal dari 1–2 titik di atas kepala. Tandai dulu titik ini sebelum mulai menggambar rambut.</p>
+            <strong>Crown point — titik asal rambut</strong>
+            <p>Sebelum menggambar rambut apapun, tandai 1–2 titik di atas kepala sebagai "sumber". Semua helai dan gumpalan rambut berasal dari titik ini — tanpa aturan ini rambut akan keliatan kacau dan tidak natural.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🖌️</span>
           <div class="step-text">
-            <strong>Gambar per kelompok (clump)</strong>
-            <p>Jangan gambar helai satu-satu. Gambar "gumpalan" rambut besar dulu → baru tambah detail helai di dalam gumpalan. Ini cara yang dipakai semua ilustrator profesional.</p>
+            <strong>Gambar per kelompok (clump), bukan per helai</strong>
+            <p>Kesalahan pemula: menggambar rambut helai satu-satu. Yang benar: gambar <em>gumpalan besar</em> dulu (silhouette rambut keseluruhan) → lalu tambah 3–5 garis detail di dalam setiap gumpalan. Ini teknik semua ilustrator profesional.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">↓</span>
           <div class="step-text">
-            <strong>Arah rambut</strong>
-            <p>Rambut mengikuti gravitasi (ke bawah) dan bentuk kepala. Bagian atas kepala rambut menempel mengikuti skull. Bagian ujung rambut lebih bebas bergerak.</p>
+            <strong>Arah rambut mengikuti gravitasi + bentuk kepala</strong>
+            <p>Bagian atas kepala (dekat crown): rambut menempel mengikuti lekukan skull. Bagian tengah: mulai jatuh. Bagian ujung: lebih bebas, bisa ada pergerakan. Rambut <em>tidak</em> tumbuh ke atas kecuali ada alasan (gel, angin, karakter spesifik).</p>
           </div>
         </li>
         <li>
           <span class="step-icon">✨</span>
           <div class="step-text">
-            <strong>Highlight rambut</strong>
-            <p>Buat layer baru di atas layer rambut. Set ke mode "Add" atau "Screen". Gambar garis terang di bagian yang kena cahaya. Hasilnya langsung keliatan keren.</p>
+            <strong>Highlight rambut dengan blending mode</strong>
+            <p>Buat layer baru di <em>atas</em> layer rambut → set ke mode <strong>"Add"</strong> atau <strong>"Screen"</strong>. Gambar garis terang memanjang di area yang kena cahaya (biasanya bagian atas kepala). Hasilnya langsung terlihat berkilau tanpa harus ubah warna dasar.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🎨</span>
+          <div class="step-text">
+            <strong>Shadow rambut dengan Multiply</strong>
+            <p>Layer baru → mode <strong>"Multiply"</strong> → warna gelap sedikit transparan (opacity 40–60%) → warnai area yang tidak kena cahaya, terutama bagian bawah gumpalan dan area di sekitar telinga.</p>
           </div>
         </li>
       </ul>
-      <div class="tip-box">💡 <strong>Tips:</strong> Rambut gambarmu di gambar pertama sudah bagus! Tinggal di-polish dengan teknik clump ini biar lebih konsisten.</div>
+      <div class="tip-box">💡 <strong>Ingat:</strong> Rambut yang bagus bukan soal banyaknya helai yang digambar, tapi soal arah dan shape gumpalan yang benar. Silhouette yang kuat = rambut yang keren.</div>
     </div>
   </div>
 
@@ -657,7 +760,7 @@
       <div class="phase-number purple">5</div>
       <div class="phase-title">
         <div class="week">Minggu 9–10</div>
-        <h2>Proporsi Tubuh</h2>
+        <h2>Proporsi Tubuh & Gesture</h2>
       </div>
       <span>▼</span>
     </div>
@@ -666,32 +769,40 @@
         <li>
           <span class="step-icon">📐</span>
           <div class="step-text">
-            <strong>Sistem kepala sebagai satuan</strong>
-            <p>Ukur tinggi kepala karakter. Tubuh gambar = 6–7× tinggi kepala. Gambar kotak-kotak dulu sesuai jumlah kepala, baru isi dengan tubuh.</p>
+            <strong>Sistem satuan kepala (head unit)</strong>
+            <p>Ukur tinggi kepala karakter → itu jadi satuan. <strong>Gaya anime:</strong> tubuh = 6–7× kepala. <strong>Realis/semi-realis:</strong> 7–8× kepala. Buat kotak-kotak panduan dulu sebelum isi tubuhnya — ini mencegah karakter yang "out of proportion".</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🦴</span>
           <div class="step-text">
-            <strong>Skeleton / stick figure dulu</strong>
-            <p>Sebelum gambar detail, buat kerangka sederhana (garis-garis untuk tulang). Kepala = lingkaran, badan = persegi panjang, anggota = garis. Ini namanya "gesture drawing".</p>
+            <strong>Gesture drawing — skeleton dulu</strong>
+            <p>Jangan langsung gambar detail. Mulai dengan <em>stick figure</em>: kepala = lingkaran, tulang belakang = garis, bahu = garis horizontal, pinggul = garis horizontal lebih kecil, anggota = garis. Ini disebut gesture — fondasi pose yang benar.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">📦</span>
           <div class="step-text">
-            <strong>Blockout dengan bentuk dasar</strong>
-            <p>Setelah skeleton, gambar kotak-kotak untuk setiap bagian tubuh. Dada = kotak besar, pinggul = kotak lebih kecil, paha = silinder, dll. Baru di-refine jadi bentuk final.</p>
+            <strong>Blockout dengan bentuk 3D sederhana</strong>
+            <p>Di atas gesture, gambar kotak/silinder untuk tiap bagian: dada = kotak besar, pinggul = kotak lebih kecil, paha & betis = silinder, lengan = silinder. Ini membantu kamu "lihat" tubuh sebagai objek 3D, bukan gambar datar.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">📌</span>
+          <div class="step-text">
+            <strong>Landmark tubuh yang wajib hafal</strong>
+            <p>Siku sejajar dengan pusar. Pergelangan tangan sejajar dengan selangkangan. Lutut di tengah antara pinggul dan lantai. Titik-titik ini berlaku untuk hampir semua proporsi karakter.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🌐</span>
           <div class="step-text">
             <strong>Latihan di Line of Action</strong>
-            <p>Buka line-of-action.com di HP. Pilih mode "Figure" → timer 30 detik. Gambar ulang pose yang muncul secepat mungkin. Latihan ini meningkatkan kemampuan pose dengan cepat.</p>
+            <p>Buka <strong>line-of-action.com</strong> di HP. Pilih "Figure" → timer 30 detik per pose. Gambar gesture cepat sebanyak mungkin — jangan mikir detail, fokus ke overall shape dan pose. 10 menit latihan ini setara 1 jam gambar biasa.</p>
           </div>
         </li>
       </ul>
+      <div class="tip-box">💡 <strong>Ingat:</strong> Proporsi yang salah tidak bisa ditutupin dengan detail yang bagus. Luangkan waktu lebih di fase ini — waktunya worth it.</div>
     </div>
   </div>
 
@@ -710,33 +821,40 @@
         <li>
           <span class="step-icon">✋</span>
           <div class="step-text">
-            <strong>Struktur tangan</strong>
-            <p>Telapak = persegi agak membulat. Jempol keluar dari sisi bawah-kiri telapak. 4 jari lainnya keluar dari atas telapak dengan panjang berbeda (jari tengah terpanjang).</p>
+            <strong>Telapak = persegi panjang + jempol di samping</strong>
+            <p>Telapak tangan bukan lingkaran — lebih seperti persegi panjang agak membulat. Jempol berasal dari <em>sisi bawah-samping</em> telapak (bukan dari atas bersama 4 jari lain). Ini kesalahan paling sering pemula.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🔲</span>
           <div class="step-text">
-            <strong>Jari = 3 kotak</strong>
-            <p>Setiap jari terdiri dari 3 segmen (falang). Gambar 3 kotak memanjang yang sedikit meruncing ke ujung. Tambahkan sendi di tiap sambungan.</p>
+            <strong>Setiap jari = 3 segmen (falang)</strong>
+            <p>Jari terdiri dari 3 ruas dengan sendi di tiap sambungan. Panjang ruas dari bawah ke ujung: <em>panjang → sedang → pendek</em>. Jari tengah terpanjang, kelingking terpendek. Ujung jari membulat, bukan kotak.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">📏</span>
+          <div class="step-text">
+            <strong>Ujung jari membentuk kurva melengkung</strong>
+            <p>Saat tangan terbuka dan rileks, ujung 4 jari (kecuali jempol) membentuk kurva seperti busur — bukan garis lurus. Ini yang bikin tangan terlihat natural dan tidak kaku.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🤳</span>
           <div class="step-text">
-            <strong>Pakai tangan sendiri sebagai referensi</strong>
-            <p>Foto tanganmu sendiri dengan berbagai pose menggunakan kamera HP. Gunakan foto itu sebagai referensi saat menggambar. Ini cara paling efektif dan gratis.</p>
+            <strong>Foto tangan sendiri sebagai referensi</strong>
+            <p>Foto tanganmu sendiri dengan berbagai pose pakai kamera HP. Pakai sebagai referensi saat menggambar — ini cara paling efektif dan gratis. Atau gunakan <strong>Just Sketch Me</strong> (justsketch.me) untuk pose tangan 3D.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🔁</span>
           <div class="step-text">
-            <strong>Gambar 5 pose tangan per hari</strong>
-            <p>Pose dasar: mengepal, terbuka, menunjuk, memegang sesuatu, pose peace. Ulangi sampai hafal strukturnya tanpa referensi.</p>
+            <strong>5 pose dasar yang wajib dikuasai</strong>
+            <p>Mengepal, tangan terbuka menghadap depan, menunjuk (1 jari), memegang objek bulat (seperti pegang bola), dan pose peace/V. Kuasai 5 ini dulu dari referensi, baru coba dari imajinasi.</p>
           </div>
         </li>
       </ul>
-      <div class="tip-box">💡 <strong>Tips:</strong> Tangan itu susah untuk semua orang. Bahkan ilustrator profesional masih sering pakai referensi. Tidak perlu malu pakai foto tangan sendiri.</div>
+      <div class="tip-box">💡 <strong>Ingat:</strong> Tangan adalah bagian paling susah di anatomi manusia. Jangan frustasi — bahkan seniman pro masih pakai referensi untuk tangan. Itu normal.</div>
     </div>
   </div>
 
@@ -746,7 +864,7 @@
       <div class="phase-number">7</div>
       <div class="phase-title">
         <div class="week">Minggu 13–14</div>
-        <h2>Line Art Bersih & Shading Dasar</h2>
+        <h2>Line Art, Warna & Shading</h2>
       </div>
       <span>▼</span>
     </div>
@@ -755,70 +873,47 @@
         <li>
           <span class="step-icon">🖊️</span>
           <div class="step-text">
-            <strong>Line art dengan variasi ketebalan</strong>
-            <p>Garis luar (outline) tubuh = tebal. Garis detail dalam (lipatan baju, detail wajah) = tipis. Variasi ini yang bikin gambar keliatan "hidup" dan profesional.</p>
+            <strong>Line art bersih dengan variasi ketebalan</strong>
+            <p>Outline luar = <strong>tebal</strong>. Detail dalam (lipatan baju, detail wajah, interior rambut) = <strong>tipis</strong>. Garis yang lebih dekat ke kamera bisa sedikit lebih tebal. Variasi ini yang membedakan gambar amatir dan gambar yang terlihat profesional.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🗂️</span>
           <div class="step-text">
-            <strong>Sistem layer yang rapi</strong>
-            <p>Urutan dari bawah ke atas: (1) Sketch/Rough, (2) Line Art, (3) Base Color, (4) Shadow, (5) Highlight. Beri nama tiap layer biar tidak bingung.</p>
+            <strong>Sistem layer yang benar — wajib diikuti</strong>
+            <p>Urutan dari bawah ke atas: <strong>(1) Rough Sketch</strong> (opacity rendah) → <strong>(2) Line Art</strong> → <strong>(3) Base Color</strong> (satu layer per area warna) → <strong>(4) Shadow</strong> (mode Multiply) → <strong>(5) Highlight</strong> (mode Add/Screen). Beri nama tiap layer. Tanpa sistem ini, file akan kacau semakin kompleks gambarnya.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">🎨</span>
+          <div class="step-text">
+            <strong>Color theory dasar — jangan asal pilih warna</strong>
+            <p>Hindari warna terlalu jenuh (saturation 100%) untuk base color — hasilnya akan "menusuk mata". Turunkan saturation sedikit. Untuk shadow, jangan pakai hitam murni — pakai versi lebih gelap + sedikit biru atau ungu. Warna shadow yang menarik biasanya agak <em>cool tone</em>.</p>
           </div>
         </li>
         <li>
           <span class="step-icon">🌑</span>
           <div class="step-text">
-            <strong>Shading dasar (cel shading)</strong>
-            <p>Tentukan sumber cahaya (misal dari kiri atas). Bagian yang tidak kena cahaya = gelap. Di layer baru dengan mode "Multiply", warnai area bayangan dengan warna gelap transparan.</p>
+            <strong>Shading dasar — cel shading</strong>
+            <p>Tentukan sumber cahaya <em>sebelum mulai</em> (misal: kiri atas). Buat layer baru dengan mode <strong>Multiply</strong> → clip ke layer base color → warnai area yang tidak kena cahaya dengan warna gelap transparan (opacity 50–70%). Gunakan satu warna shadow yang konsisten untuk semua area.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">✨</span>
+          <div class="step-text">
+            <strong>Highlight untuk kedalaman</strong>
+            <p>Layer baru mode <strong>Add</strong> atau <strong>Screen</strong> → gambar highlight di area yang paling terkena cahaya langsung: ujung hidung, dahi, bahu, rambut bagian atas. Highlight kecil tapi akurat = perbedaan besar di hasil akhir.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-icon">📤</span>
+          <div class="step-text">
+            <strong>Export yang benar</strong>
+            <p>Untuk share di sosmed: export PNG, ukuran asli. Untuk dijadikan referensi progress: simpan file asli (.ibis) juga. Jangan export JPEG untuk lineart — kompresi JPEG merusak kualitas garis.</p>
           </div>
         </li>
       </ul>
-    </div>
-  </div>
-
-  <!-- FASE 8 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number red">8</div>
-      <div class="phase-title">
-        <div class="week">Minggu 15–16</div>
-        <h2>Portofolio & Mulai Jual</h2>
-      </div>
-      <span>▼</span>
-    </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">🗂️</span>
-          <div class="step-text">
-            <strong>Kumpulkan 5–6 karya terbaik</strong>
-            <p>Pilih yang paling polish. Boleh campur: portrait, full body, ekspresi berbeda. Ini yang akan jadi "etalase" kamu di Fiverr atau media sosial.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">📸</span>
-          <div class="step-text">
-            <strong>Upload ke Instagram / Twitter</strong>
-            <p>Buat akun khusus untuk karya. Pakai hashtag: #gambarart #digitalart #commissionsopen. Ini cara paling cepat dapat klien pertama.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">💼</span>
-          <div class="step-text">
-            <strong>Buka Fiverr Gig</strong>
-            <p>Gig pertama: "I will draw gambar/anime portrait for you". Harga mulai $5–$10. Terima saja order apapun dulu untuk dapat review pertama. Review adalah segalanya di Fiverr.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🇮🇩</span>
-          <div class="step-text">
-            <strong>Alternatif lokal</strong>
-            <p>Tawarkan jasa di grup Facebook "Komisi Ilustrasi Indonesia" atau Twitter lokal. Pasar lokal lebih mudah dikomunikasikan dan tidak butuh bahasa Inggris.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Tips:</strong> Harga murah di awal bukan berarti rugi — kamu investasi untuk dapat review & portofolio. Naikkan harga setelah dapat 5–10 review positif.</div>
+      <div class="tip-box">💡 <strong>Ingat:</strong> Gambar digital yang bagus bukan soal tool yang mahal, tapi soal fondasi yang kuat. Kalau fase 1–6 sudah solid, fase ini akan terasa natural.</div>
     </div>
   </div>
 
@@ -863,10 +958,10 @@
     <h4>Pinterest</h4>
     <p>Cari referensi pose, ekspresi, dan gaya gambar. Simpan ke board khusus belajar.</p>
   </div>
-  <div class="tool-card clickable" onclick="showChannelPicker()">
+  <div class="tool-card clickable" onclick="showVideoGallery()">
     <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
     <h4>YouTube</h4>
-    <p>Channel: Marc Brunet, Nadiaxel, Lemia Sari (Indonesia). Gratis & lengkap.</p>
+    <p>12 video tutorial pilihan — terurut per fase belajar. Tap untuk lihat daftar.</p>
   </div>
 </div>
 
@@ -874,18 +969,14 @@
   <p>Dibuat dengan ❤️ · Konsisten > Berbakat · Selamat belajar!</p>
 </footer>
 
-<!-- Channel Picker Modal -->
-<div class="modal-overlay" id="channelOverlay" onclick="closeChannelModal(event)">
-  <div class="modal-box">
-    <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" class="modal-icon">
-    <h3>Pilih Channel</h3>
-    <p>Pilih channel tutorial yang ingin kamu buka:</p>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-      <button onclick="goChannel('https://www.youtube.com/@marccbrunet')" style="background:#1e1e2e;border:1px solid #2a2a3a;color:#e8e8f0;padding:12px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left;">🎨 Marc Brunet — EN</button>
-      <button onclick="goChannel('https://www.youtube.com/@Nadiaxel')" style="background:#1e1e2e;border:1px solid #2a2a3a;color:#e8e8f0;padding:12px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left;">✏️ Nadiaxel — EN</button>
-      <button onclick="goChannel('https://www.youtube.com/@LemiaSari')" style="background:#1e1e2e;border:1px solid #2a2a3a;color:#e8e8f0;padding:12px;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left;">🇮🇩 Lemia Sari — Indonesia</button>
+<!-- Video Gallery Modal -->
+<div class="modal-overlay" id="videoGalleryOverlay" onclick="closeVideoGallery(event)" style="align-items:flex-start;padding:0;">
+  <div id="videoGalleryBox" style="background:#1a1a24;width:100%;max-width:680px;margin:0 auto;max-height:100vh;overflow-y:auto;border-radius:0 0 20px 20px;padding:20px 16px 32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:sticky;top:0;background:#1a1a24;padding:12px 0 8px;z-index:10;border-bottom:1px solid #2a2a3a;">
+      <h3 style="font-size:16px;color:#e8c84a;">📺 Video Tutorial per Fase</h3>
+      <button onclick="document.getElementById('videoGalleryOverlay').classList.remove('open')" style="background:#2a2a3a;border:none;color:#8888aa;font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer;line-height:1;">✕</button>
     </div>
-    <button class="btn-cancel" style="width:100%;padding:12px;border-radius:10px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;background:#2a2a3a;color:#8888aa;" onclick="document.getElementById('channelOverlay').classList.remove('open')">Batal</button>
+    <div id="videoGalleryContent"></div>
   </div>
 </div>
 
@@ -904,6 +995,7 @@
 </div>
 
 <script>
+  /* ── Modal & Nav ── */
   let currentLink = '';
 
   function showModal(title, desc, url, icon) {
@@ -914,77 +1006,352 @@
     document.getElementById('modalIcon').src = icon;
     document.getElementById('modalOverlay').classList.add('open');
   }
-
   function goToLink() {
     window.open(currentLink, '_blank');
     document.getElementById('modalOverlay').classList.remove('open');
   }
-
   function closeModal(e) {
-    if (e.target.id === 'modalOverlay') {
-      document.getElementById('modalOverlay').classList.remove('open');
-    }
+    if (e.target.id === 'modalOverlay') document.getElementById('modalOverlay').classList.remove('open');
+  }
+  /* ── Video Gallery ── */
+  const VIDEO_DATA = [
+    { phase:1, phaseTitle:'Fase 1 — Setup & Kontrol Garis', videos:[
+      { id:'5P6gaSJCgBo', title:'The Only Art Tutorial You\'ll Ever Need (Brokendraw)' },
+      { id:'PnVYfNmTJ0s', title:'How To Make Drawing 5x Times Easier' },
+    ]},
+    { phase:2, phaseTitle:'Fase 2 — Proporsi Wajah', videos:[
+      { id:'JWTcTUNXcOg', title:'Face Proportion Tutorial for Beginners' },
+    ]},
+    { phase:3, phaseTitle:'Fase 3 — Mata & Ekspresi', videos:[
+      { id:'Ehi3qpAkbm0', title:'How to COLOR // 4 steps' },
+    ]},
+    { phase:4, phaseTitle:'Fase 4 — Rambut', videos:[
+      { id:'X3P7_VlAMIc', title:'How to draw Bodies / Tutorial and Practice (Chommang)' },
+    ]},
+    { phase:5, phaseTitle:'Fase 5 — Proporsi Tubuh & Gesture', videos:[
+      { id:'WkmZLi8bNBM', title:'Drawing Anatomy is Easier Than You Think, Here\'s How' },
+      { id:'DmZdjspTsTw', title:'I Wanna Learn Anatomy in 7 DAYS... so I Got Help' },
+    ]},
+    { phase:6, phaseTitle:'Fase 6 — Tangan & Jari', videos:[
+      { id:'eAhHgPZASYQ', title:'How to draw Hands / Useful Tips!! Part 1 (Chommang)' },
+    ]},
+    { phase:7, phaseTitle:'Fase 7 — Line Art, Warna & Shading', videos:[
+      { id:'RFQtsXktc9g', title:'Train Your Eyes to See Values' },
+      { id:'-Len8j7PeY8', title:'How to RENDER Digital Art // Just Ball' },
+      { id:'kGvDQCohHdM', title:'BASIC COLOR THEORY | Beginner Guide + Concepts' },
+      { id:'68eC42S_FNc', title:'BASIC COLOR THEORY | YouTube Art School' },
+    ]},
+  ];
+
+  function showVideoGallery() {
+    const container = document.getElementById('videoGalleryContent');
+    container.innerHTML = '';
+    VIDEO_DATA.forEach(group => {
+      const section = document.createElement('div');
+      section.style.cssText = 'margin-bottom:24px;';
+      const label = document.createElement('p');
+      label.style.cssText = 'font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#8888aa;margin-bottom:10px;font-weight:700;';
+      label.textContent = group.phaseTitle;
+      section.appendChild(label);
+      group.videos.forEach(v => {
+        const card = document.createElement('div');
+        card.style.cssText = 'display:flex;gap:12px;align-items:center;background:#0f0f13;border:1px solid #2a2a3a;border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;';
+        card.onmouseenter = () => { card.style.borderColor='#e8c84a'; card.style.boxShadow='0 0 10px rgba(232,200,74,0.15)'; };
+        card.onmouseleave = () => { card.style.borderColor='#2a2a3a'; card.style.boxShadow='none'; };
+        card.onclick = () => window.open('https://www.youtube.com/watch?v='+v.id, '_blank');
+        const img = document.createElement('img');
+        img.src = 'https://i.ytimg.com/vi/'+v.id+'/mqdefault.jpg';
+        img.style.cssText = 'width:108px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#1a1a24;';
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;min-width:0;';
+        const title = document.createElement('p');
+        title.style.cssText = 'font-size:13px;font-weight:700;color:#e8e8f0;line-height:1.4;margin:0 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+        title.textContent = v.title;
+        const lnk = document.createElement('span');
+        lnk.style.cssText = 'font-size:11px;color:#e8c84a;font-weight:600;';
+        lnk.textContent = '▶ Tonton di YouTube';
+        info.appendChild(title);
+        info.appendChild(lnk);
+        card.appendChild(img);
+        card.appendChild(info);
+        section.appendChild(card);
+      });
+      container.appendChild(section);
+    });
+    document.getElementById('videoGalleryOverlay').classList.add('open');
   }
 
-  function showChannelPicker() {
-    document.getElementById('channelOverlay').classList.add('open');
+  function closeVideoGallery(e) {
+    if (e.target.id === 'videoGalleryOverlay') document.getElementById('videoGalleryOverlay').classList.remove('open');
   }
 
-  function closeChannelModal(e) {
-    if (e.target.id === 'channelOverlay') {
-      document.getElementById('channelOverlay').classList.remove('open');
-    }
-  }
+  function showChannelPicker() { showVideoGallery(); }
+  function closeChannelModal(e) { closeVideoGallery(e); }
+  function goChannel(url) { window.open(url,'_blank'); }
 
-  function goChannel(url) {
-    window.open(url, '_blank');
-    document.getElementById('channelOverlay').classList.remove('open');
-  }
-
+  /* ── Toggle Phase with opened class ── */
   function togglePhase(header) {
     const content = header.nextElementSibling;
     const arrow = header.querySelector('span:last-child');
     content.classList.toggle('open');
+    header.classList.toggle('opened', content.classList.contains('open'));
     arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
   }
 
-  // Progress dots scroll tracking
-  const phases = document.querySelectorAll('.phase');
-  const dots = document.querySelectorAll('.progress-dot');
-
-  function updateDots() {
-    let current = 0;
-    phases.forEach((phase, i) => {
-      const rect = phase.getBoundingClientRect();
-      if (rect.top <= window.innerHeight * 0.5) {
-        current = i;
+  /* ── Phase entrance animation (IntersectionObserver) ── */
+  const phaseObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, idx) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => el.classList.add('visible'), delay);
+        phaseObserver.unobserve(el);
       }
     });
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i <= current);
-    });
-  }
+  }, { threshold: 0.12 });
 
+  document.querySelectorAll('.phase').forEach((phase, i) => {
+    phase.dataset.delay = i * 60;
+    phaseObserver.observe(phase);
+  });
+
+  /* ── Progress dots ── */
+  const phases = document.querySelectorAll('.phase');
+  const dots   = document.querySelectorAll('.progress-dot');
   const miniBar = document.getElementById('miniBar');
   const miniDotsList = miniBar.querySelectorAll('.progress-dot');
   const headerEl = document.querySelector('header');
 
+  function updateDots() {
+    let current = 0;
+    phases.forEach((phase, i) => {
+      if (phase.getBoundingClientRect().top <= window.innerHeight * 0.5) current = i;
+    });
+    dots.forEach((dot, i) => dot.classList.toggle('active', i <= current));
+  }
   function onScroll() {
     updateDots();
-    // sync mini dots
-    miniDotsList.forEach((dot, i) => {
-      dot.classList.toggle('active', dots[i].classList.contains('active'));
-    });
-    // show/hide mini bar
-    if (window.scrollY > headerEl.offsetHeight - 20) {
-      miniBar.classList.add('visible');
-    } else {
-      miniBar.classList.remove('visible');
-    }
+    miniDotsList.forEach((dot, i) => dot.classList.toggle('active', dots[i].classList.contains('active')));
+    miniBar.classList.toggle('visible', window.scrollY > headerEl.offsetHeight - 20);
   }
-
   window.addEventListener('scroll', onScroll);
   updateDots();
+
+  /* ── Laser beam JS animation ── */
+  (function() {
+    const beam = document.getElementById('laserBeam');
+    const laserEl = document.querySelector('.timeline-laser');
+
+    function animateLaser() {
+      const totalH = laserEl.offsetHeight;
+      const beamH = 40;
+      let startTime = null;
+      const duration = 2600; // ms for one pass
+
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        const elapsed = ts - startTime;
+        const progress = elapsed / duration; // 0 → 1
+
+        // travel from bottom to top: start at totalH, end at -beamH
+        const topVal = totalH - (totalH + beamH) * progress;
+
+        let alpha;
+        if (progress < 0.05) alpha = progress / 0.05;
+        else if (progress > 0.88) alpha = (1 - progress) / 0.12;
+        else alpha = 1;
+
+        beam.style.top = topVal + 'px';
+        beam.style.opacity = alpha;
+
+        if (elapsed < duration) {
+          requestAnimationFrame(step);
+        } else {
+          beam.style.opacity = 0;
+          // pause 0.6s between passes
+          setTimeout(animateLaser, 600);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+    animateLaser();
+  })();
+
+  /* ── Constellation Canvas ── */
+  (function () {
+    const canvas = document.getElementById('constellationCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, stars = [], forming = [], lastSpawn = 0;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // --- Real constellation data (normalized 0-100 coords, with named edges) ---
+    const CONSTELLATIONS = [
+      { name:'Orion', pts:[[50,10],[44,28],[56,28],[35,45],[65,45],[40,62],[60,62],[50,80],[42,90],[58,90]], edges:[[0,1],[0,2],[1,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,7],[7,8],[7,9]] },
+      { name:'Ursa Major', pts:[[10,50],[25,45],[40,48],[55,42],[70,38],[80,25],[90,30],[80,42],[70,50]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[4,8]] },
+      { name:'Ursa Minor', pts:[[50,10],[48,22],[52,34],[50,48],[38,60],[30,72],[44,80]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[3,6]] },
+      { name:'Cassiopeia', pts:[[10,50],[25,20],[50,50],[75,20],[90,50]], edges:[[0,1],[1,2],[2,3],[3,4]] },
+      { name:'Leo', pts:[[20,60],[30,40],[40,20],[55,30],[65,50],[60,70],[50,80],[30,70],[20,60],[50,80]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[4,8],[5,9]] },
+      { name:'Scorpius', pts:[[50,5],[45,18],[40,30],[35,44],[30,56],[32,68],[38,78],[46,86],[55,82],[62,74],[65,62]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10]] },
+      { name:'Sagittarius', pts:[[30,70],[20,55],[30,40],[45,35],[55,40],[60,55],[50,65],[35,60],[45,50],[55,35],[65,25],[75,30]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[3,8],[8,4],[3,9],[9,10],[10,11]] },
+      { name:'Cygnus', pts:[[50,10],[50,35],[50,60],[50,85],[20,35],[80,35],[35,55],[65,55]], edges:[[0,1],[1,2],[2,3],[4,1],[1,5],[6,2],[2,7]] },
+      { name:'Lyra', pts:[[50,10],[35,30],[40,50],[50,60],[60,50],[65,30],[50,10]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[1,5],[2,4]] },
+      { name:'Aquila', pts:[[50,10],[45,30],[50,50],[40,65],[60,65],[50,80],[50,50],[35,40],[65,40]], edges:[[0,1],[1,2],[2,3],[2,4],[3,5],[4,5],[1,7],[1,8]] },
+      { name:'Gemini', pts:[[20,10],[20,30],[20,50],[20,70],[40,10],[40,30],[40,50],[40,70],[30,85]], edges:[[0,1],[1,2],[2,3],[4,5],[5,6],[6,7],[1,5],[2,6],[3,8],[7,8]] },
+      { name:'Taurus', pts:[[50,30],[35,20],[20,15],[55,45],[70,35],[80,20],[65,50],[75,60]], edges:[[0,1],[1,2],[0,3],[3,4],[4,5],[3,6],[6,7]] },
+      { name:'Aries', pts:[[20,50],[40,35],[60,40],[80,50]], edges:[[0,1],[1,2],[2,3]] },
+      { name:'Virgo', pts:[[50,10],[40,25],[30,40],[35,58],[50,65],[65,58],[70,40],[60,25],[50,10],[50,65],[50,80]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[4,9],[9,10]] },
+      { name:'Perseus', pts:[[50,10],[45,25],[38,38],[30,50],[42,58],[50,65],[58,58],[60,45],[55,30],[65,18]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,1],[8,9]] },
+      { name:'Auriga', pts:[[50,10],[20,35],[30,60],[50,70],[70,60],[80,35],[50,10]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[2,4]] },
+      { name:'Boötes', pts:[[50,10],[35,28],[25,48],[35,65],[50,75],[65,65],[75,48],[65,28],[50,10]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[1,7]] },
+      { name:'Corona Borealis', pts:[[20,50],[30,30],[45,20],[60,20],[75,30],[80,50]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5]] },
+      { name:'Hercules', pts:[[50,15],[35,28],[28,45],[35,62],[50,70],[65,62],[72,45],[65,28],[50,15],[50,70],[42,85],[58,85]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[1,7],[2,6],[4,9],[9,10],[9,11]] },
+      { name:'Pegasus', pts:[[10,10],[10,60],[60,60],[60,10],[10,10],[60,10],[80,30],[90,60]], edges:[[0,1],[1,2],[2,3],[3,0],[3,5],[5,6],[6,7]] },
+      { name:'Andromeda', pts:[[10,50],[25,40],[40,30],[55,20],[70,15],[55,35],[40,50],[25,65]], edges:[[0,1],[1,2],[2,3],[3,4],[2,5],[5,6],[6,7]] },
+      { name:'Canis Major', pts:[[50,10],[40,25],[30,40],[38,55],[50,65],[62,55],[70,40],[60,25],[50,65],[50,80]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,1],[4,8],[8,9]] },
+      { name:'Canis Minor', pts:[[30,40],[60,55],[70,70]], edges:[[0,1],[1,2]] },
+      { name:'Draco', pts:[[80,10],[70,20],[60,30],[50,42],[42,55],[35,65],[30,75],[38,82],[48,78],[55,68],[60,55],[68,45],[75,35],[80,10]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13]] },
+      { name:'Libra', pts:[[20,50],[40,30],[60,30],[80,50],[60,70],[40,70],[20,50]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[1,5],[2,4]] },
+      { name:'Capricornus', pts:[[10,40],[25,25],[45,20],[60,30],[70,45],[65,60],[50,70],[30,65],[15,55],[10,40]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0]] },
+      { name:'Aquarius', pts:[[40,10],[35,25],[30,40],[38,52],[50,58],[62,52],[70,40],[65,25],[60,10],[50,58],[48,72],[55,82]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[4,9],[9,10],[10,11]] },
+      { name:'Pisces', pts:[[20,30],[30,20],[45,18],[55,25],[60,38],[55,52],[45,58],[60,65],[70,72],[80,68],[85,55],[80,42],[68,38]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12]] },
+      { name:'Cancer', pts:[[30,30],[45,45],[55,45],[50,60],[40,70],[60,30]], edges:[[0,1],[1,2],[2,3],[3,4],[1,5]] },
+      { name:'Lupus', pts:[[25,30],[40,20],[55,25],[65,40],[60,55],[45,60],[30,50],[25,30]], edges:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0]] },
+    ];
+
+    // Background stars
+    function mkStar() {
+      return {
+        x: Math.random() * W, y: Math.random() * H,
+        r: Math.random() * 1.1 + 0.2,
+        alpha: Math.random() * 0.4 + 0.15,
+        twinkle: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.007 + 0.002,
+      };
+    }
+    for (let i = 0; i < 130; i++) stars.push(mkStar());
+
+    // Track which constellations were recently used to avoid repeats
+    const recentlyUsed = [];
+
+    function spawnConstellation() {
+      // Pick one not recently used
+      let idx;
+      do { idx = Math.floor(Math.random() * CONSTELLATIONS.length); }
+      while (recentlyUsed.includes(idx));
+      recentlyUsed.push(idx);
+      if (recentlyUsed.length > 5) recentlyUsed.shift();
+
+      const src = CONSTELLATIONS[idx];
+      const scale = (0.9 + Math.random() * 1.0) * Math.min(W, H) / 120;
+      const margin = 60;
+      const ox = margin + Math.random() * (W - margin * 2);
+      const oy = margin + Math.random() * (H - margin * 2);
+
+      // Floating drift
+      const driftAngle = Math.random() * Math.PI * 2;
+      const driftSpeed = 0.08 + Math.random() * 0.12;
+      const driftAmp = 8 + Math.random() * 14;
+
+      const basePts = src.pts.map(([px, py]) => ({
+        bx: ox + (px - 50) * scale,
+        by: oy + (py - 50) * scale,
+      }));
+
+      const maxLife = 200 + Math.random() * 100; // shorter: ~3-5s at 60fps
+      forming.push({
+        name: src.name,
+        basePts,
+        edges: src.edges,
+        life: 0,
+        maxLife,
+        driftAngle,
+        driftSpeed,
+        driftAmp,
+        driftPhase: Math.random() * Math.PI * 2,
+      });
+    }
+
+    function draw(ts) {
+      ctx.clearRect(0, 0, W, H);
+
+      // Background twinkle stars
+      stars.forEach(s => {
+        s.twinkle += s.speed;
+        const a = s.alpha * (0.55 + 0.45 * Math.sin(s.twinkle));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232,200,74,${a})`;
+        ctx.fill();
+      });
+
+      // Spawn every ~2.5s
+      if (!lastSpawn || ts - lastSpawn > 2500) {
+        spawnConstellation();
+        lastSpawn = ts;
+      }
+
+      forming = forming.filter(c => {
+        c.life++;
+        const FADE_IN  = 35;
+        const FADE_OUT = 40;
+        let masterAlpha;
+        if (c.life < FADE_IN) masterAlpha = c.life / FADE_IN;
+        else if (c.life > c.maxLife - FADE_OUT) masterAlpha = (c.maxLife - c.life) / FADE_OUT;
+        else masterAlpha = 1;
+        if (masterAlpha <= 0) return c.life < c.maxLife;
+
+        // Floating offset
+        const floatT = c.life * c.driftSpeed * 0.04 + c.driftPhase;
+        const fx = Math.sin(floatT) * c.driftAmp;
+        const fy = Math.cos(floatT * 0.7) * c.driftAmp * 0.6;
+
+        const pts = c.basePts.map(p => ({ x: p.bx + fx, y: p.by + fy }));
+
+        // Draw edges
+        c.edges.forEach(([a, b]) => {
+          const edgeAppear = Math.max(0, Math.min(1, (c.life - a * 5 - 8) / 18));
+          const opa = masterAlpha * edgeAppear * 0.4;
+          if (opa <= 0) return;
+          ctx.beginPath();
+          ctx.moveTo(pts[a].x, pts[a].y);
+          ctx.lineTo(pts[b].x, pts[b].y);
+          ctx.strokeStyle = `rgba(232,200,74,${opa})`;
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+        });
+
+        // Draw stars
+        pts.forEach((pt, i) => {
+          const appear = Math.max(0, Math.min(1, (c.life - i * 4) / 14));
+          const a = masterAlpha * appear;
+          if (a <= 0) return;
+          // glow
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,240,160,${a * 0.35})`;
+          ctx.fill();
+          // core
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 1.6, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,230,${a * 0.95})`;
+          ctx.fill();
+        });
+
+        return c.life < c.maxLife;
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    spawnConstellation();
+    requestAnimationFrame(draw);
+  })();
 </script>
 
 </body>

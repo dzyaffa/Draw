@@ -1,501 +1,202 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tutorial Menggambar Menggambar Digital</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tutorial Menggambar Digital</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <canvas id="constellationCanvas"></canvas>
 
-<header>
-  <div class="tag">Panduan Lengkap</div>
-  <h1>Tutorial<br><span>Menggambar Digital</span></h1>
-  <p class="subtitle">Dari nol sampai jago — step by step</p>
-  <div class="progress-bar" id="progressBar">
-    <div class="progress-dot" data-phase="0"></div>
-    <div class="progress-dot" data-phase="1"></div>
-    <div class="progress-dot" data-phase="2"></div>
-    <div class="progress-dot" data-phase="3"></div>
-    <div class="progress-dot" data-phase="4"></div>
-    <div class="progress-dot" data-phase="5"></div>
-    <div class="progress-dot" data-phase="6"></div>
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="topbar-title">🎨 Draw Guide</span>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="search" id="searchInput" placeholder="Cari..." autocomplete="off" autocorrect="off" spellcheck="false">
   </div>
-</header>
-
-<div class="mini-bar" id="miniBar">
-  <div class="progress-bar" id="miniDots">
-    <div class="progress-dot" data-phase="0"></div>
-    <div class="progress-dot" data-phase="1"></div>
-    <div class="progress-dot" data-phase="2"></div>
-    <div class="progress-dot" data-phase="3"></div>
-    <div class="progress-dot" data-phase="4"></div>
-    <div class="progress-dot" data-phase="5"></div>
-    <div class="progress-dot" data-phase="6"></div>
-  </div>
+  <button class="btn-icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">🌙</button>
 </div>
 
-<div class="timeline">
-  <div class="timeline-laser"><div id="laserBeam"></div></div>
+<!-- MAIN PAGE -->
+<div class="page">
+  <header>
+    <div class="tag">Panduan Lengkap</div>
+    <h1>Tutorial<br><span>Menggambar Digital</span></h1>
+    <p class="subtitle">Dari nol sampai jago — step by step</p>
 
-  <!-- FASE 1 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number">1</div>
-      <div class="phase-title">
-        <div class="week">Minggu 1–2</div>
-        <h2>Setup Aplikasi & Kontrol Garis</h2>
-      </div>
-      <span>▼</span>
+  </header>
+
+  <div id="searchBanner" class=""></div>
+
+  <!-- ROADMAP -->
+  <div class="timeline">
+    <div class="timeline-line"></div>
+
+    <div class="phase-card" data-keywords="setup aplikasi garis stabilizer ibis paint kontrol">
+      <button class="phase-btn" onclick="openPhase(0)" aria-label="Buka Fase 1">
+        <div class="phase-num">1</div>
+        <div class="phase-meta">
+          <div class="week">Minggu 1–2</div>
+          <h2>Setup Aplikasi & Kontrol Garis</h2>
+        </div>
+        <span class="phase-arrow">›</span>
+      </button>
     </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">📲</span>
-          <div class="step-text">
-            <strong>Install Ibis Paint X</strong>
-            <p>Download gratis di Play Store / App Store. Buka → New Canvas → ukuran <strong>2000×2000px, 72dpi</strong> untuk latihan. Pakai A4 300dpi hanya kalau mau cetak.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🗂️</span>
-          <div class="step-text">
-            <strong>Pahami 4 tool wajib dulu</strong>
-            <p><strong>Pen (G-Pen)</strong> untuk menggambar, <strong>Eraser</strong> untuk hapus, <strong>Layer</strong> untuk memisahkan elemen, <strong>Undo (Ctrl+Z / 2 jari)</strong>. Jangan pelajari tool lain dulu sampai 4 ini terasa natural.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">📏</span>
-          <div class="step-text">
-            <strong>Latihan garis lurus — gerakan dari siku</strong>
-            <p>Tarik garis horizontal panjang dari ujung ke ujung tanpa angkat stylus. Gerakannya dari <em>siku</em>, bukan pergelangan — ini yang bikin garis panjang lebih stabil. Ulangi 20× tiap sesi.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">〰️</span>
-          <div class="step-text">
-            <strong>Latihan garis lengkung & busur</strong>
-            <p>Gambar busur besar (seperti senyum) dari kiri ke kanan dengan satu tarikan. Jangan angkat pena di tengah jalan. Ini melatih <em>muscle memory</em> tangan untuk gerakan smooth.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">⭕</span>
-          <div class="step-text">
-            <strong>Latihan bentuk dasar freehand</strong>
-            <p>Gambar lingkaran, kotak, dan segitiga tanpa bantuan ruler. Semua objek di dunia bisa dipecah jadi bentuk dasar ini. Kerjakan 10 menit tiap hari — ini fondasi segalanya.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">⚙️</span>
-          <div class="step-text">
-            <strong>Aktifkan Stabilizer</strong>
-            <p>Di Ibis Paint, ketuk ikon Pen → geser slider <strong>Stabilizer ke 5–7</strong>. Fitur ini memperlambat ujung garis sedikit agar hasilnya lebih mulus — wajib untuk pemula.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Ingat:</strong> Urutan yang benar adalah fondasi segalanya — kontrol tangan dulu baru bentuk, proporsi, baru shading. Lewati tahap ini dan kamu akan mentok di tahap berikutnya.</div>
+
+    <div class="phase-card" data-keywords="wajah proporsi kepala cross line mata hidung mulut telinga flip">
+      <button class="phase-btn" onclick="openPhase(1)" aria-label="Buka Fase 2">
+        <div class="phase-num">2</div>
+        <div class="phase-meta">
+          <div class="week">Minggu 3–4</div>
+          <h2>Proporsi Wajah & Struktur Kepala</h2>
+        </div>
+        <span class="phase-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="phase-card" data-keywords="mata ekspresi iris pupil highlight alis ekspresi sedih marah senang kaget">
+      <button class="phase-btn" onclick="openPhase(2)" aria-label="Buka Fase 3">
+        <div class="phase-num">3</div>
+        <div class="phase-meta">
+          <div class="week">Minggu 5–6</div>
+          <h2>Mata & Ekspresi</h2>
+        </div>
+        <span class="phase-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="phase-card" data-keywords="rambut crown point clump highlight multiply shadow kelompok helai">
+      <button class="phase-btn" onclick="openPhase(3)" aria-label="Buka Fase 4">
+        <div class="phase-num">4</div>
+        <div class="phase-meta">
+          <div class="week">Minggu 7–8</div>
+          <h2>Rambut</h2>
+        </div>
+        <span class="phase-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="phase-card" data-keywords="tubuh proporsi gesture skeleton anatomy landmark siku pergelangan lutut line of action">
+      <button class="phase-btn" onclick="openPhase(4)" aria-label="Buka Fase 5">
+        <div class="phase-num">5</div>
+        <div class="phase-meta">
+          <div class="week">Minggu 9–10</div>
+          <h2>Proporsi Tubuh & Gesture</h2>
+        </div>
+        <span class="phase-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="phase-card" data-keywords="tangan jari telapak jempol falang kurva referensi pose">
+      <button class="phase-btn" onclick="openPhase(5)" aria-label="Buka Fase 6">
+        <div class="phase-num">6</div>
+        <div class="phase-meta">
+          <div class="week">Minggu 11–12</div>
+          <h2>Tangan & Jari</h2>
+        </div>
+        <span class="phase-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="phase-card" data-keywords="lineart warna shading coloring layer color theory multiply add screen export cel shading highlight">
+      <button class="phase-btn" onclick="openPhase(6)" aria-label="Buka Fase 7">
+        <div class="phase-num">7</div>
+        <div class="phase-meta">
+          <div class="week">Minggu 13–14</div>
+          <h2>Line Art, Warna & Shading</h2>
+        </div>
+        <span class="phase-arrow">›</span>
+      </button>
     </div>
   </div>
 
-  <!-- FASE 2 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number red">2</div>
-      <div class="phase-title">
-        <div class="week">Minggu 3–4</div>
-        <h2>Proporsi Wajah & Struktur Kepala</h2>
-      </div>
-      <span>▼</span>
-    </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">⭕</span>
-          <div class="step-text">
-            <strong>Bentuk kepala dasar</strong>
-            <p>Mulai dari lingkaran (cranium). Tarik 2 garis ke bawah dari sisi kiri-kanan lingkaran → pertemukan di dagu. Untuk gaya anime, dagu lebih runcing. Untuk realis, dagu lebih lebar dan bulat.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">➕</span>
-          <div class="step-text">
-            <strong>Cross line — panduan posisi fitur wajah</strong>
-            <p>Garis <strong>vertikal</strong> di tengah = sumbu simetri. Garis <strong>horizontal</strong> di tengah kepala = batas posisi mata. Gambar di layer terpisah agar bisa dihapus setelah selesai.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">👁️</span>
-          <div class="step-text">
-            <strong>Proporsi mata yang benar</strong>
-            <p>Mata diletakkan <em>tepat di garis horizontal</em>. Jarak antar 2 mata = 1 lebar mata (ini aturan universal, berlaku untuk anime maupun realis). Terlalu jauh atau terlalu dekat = wajah keliatan aneh.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">👃</span>
-          <div class="step-text">
-            <strong>Posisi hidung & mulut</strong>
-            <p>Hidung = ½ jarak antara garis mata ke dagu. Mulut = ⅔ jarak dari hidung ke dagu. Ini proporsi standar — hafalkan sebagai patokan, bukan aturan kaku.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">👂</span>
-          <div class="step-text">
-            <strong>Posisi telinga</strong>
-            <p>Bagian atas telinga sejajar dengan garis mata. Bagian bawah telinga sejajar dengan ujung hidung. Telinga berada di samping kepala, bukan di belakang.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🔄</span>
-          <div class="step-text">
-            <strong>Flip canvas untuk deteksi error</strong>
-            <p>Ibis Paint punya tombol flip horizontal (ikon cermin). Gunakan tiap 5–10 menit menggambar. Wajah yang terasa benar tapi sebenarnya miring akan langsung ketahuan saat di-flip.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Ingat:</strong> Proporsi wajah bukan soal menghafal, tapi soal melatih mata untuk melihat. Gambar wajah yang sama 10× dengan referensi berbeda-beda — progres lu akan kelihatan jelas.</div>
+  <!-- ROUTINE -->
+  <div class="routine">
+    <h3>⏱️ Rutinitas Harian (30 Menit)</h3>
+    <div class="routine-items">
+      <div class="routine-item"><span class="routine-time">5 menit</span><span class="routine-desc">Latihan garis & bentuk dasar (warm-up)</span></div>
+      <div class="routine-item"><span class="routine-time">15 menit</span><span class="routine-desc">Latihan fokus sesuai fase minggu ini</span></div>
+      <div class="routine-item"><span class="routine-time">10 menit</span><span class="routine-desc">Gambar bebas / coba ulang dari referensi</span></div>
     </div>
   </div>
 
-  <!-- FASE 3 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number blue">3</div>
-      <div class="phase-title">
-        <div class="week">Minggu 5–6</div>
-        <h2>Mata & Ekspresi</h2>
-      </div>
-      <span>▼</span>
+  <!-- TOOLS -->
+  <p class="section-label">Aplikasi yang dibutuhkan</p>
+  <div class="tools">
+    <div class="tool-card" onclick="showModal('Ibis Paint X','Kamu akan diarahkan ke halaman download Ibis Paint X di Play Store.','https://play.google.com/store/apps/details?id=jp.ne.ibis.ibispaintx.app','https://www.google.com/s2/favicons?domain=ibispaint.com&sz=64')">
+      <img src="https://www.google.com/s2/favicons?domain=ibispaint.com&sz=64" style="width:36px;height:36px;border-radius:8px;margin-bottom:8px;">
+      <h4>Ibis Paint X</h4>
+      <p>Aplikasi utama. Gratis, fitur lengkap, populer untuk gambar digital di HP.</p>
     </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">👁️</span>
-          <div class="step-text">
-            <strong>Anatomi mata (layer per layer)</strong>
-            <p><strong>Layer 1:</strong> outline mata — garis atas <em>tebal</em>, garis bawah <em>tipis</em>. <strong>Layer 2:</strong> iris bulat besar (isi warna dasar). <strong>Layer 3:</strong> pupil gelap di tengah iris. <strong>Layer 4:</strong> shadow gelap di bagian atas iris (bawah kelopak). <strong>Layer 5:</strong> highlight — titik putih kecil di pojok iris atas. Highlight inilah yang bikin mata "hidup".</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🎭</span>
-          <div class="step-text">
-            <strong>Ekspresi = alis + mata + mulut</strong>
-            <p>Ekspresi bukan cuma dari mulut. Alis adalah kunci utama: <strong>Senang</strong> — alis normal, ujung mulut naik, mata setengah menutup. <strong>Marah</strong> — alis dalam turun ke tengah, mata menyipit. <strong>Sedih</strong> — bagian dalam alis naik ke atas, sudut mulut turun. <strong>Kaget</strong> — alis naik tinggi, mata dan mulut terbuka lebar, bentuk O.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🎯</span>
-          <div class="step-text">
-            <strong>Latihan referensi — bukan trace</strong>
-            <p>Cari 1 karakter gambar yang lu suka. Amati matanya, tutup referensi, gambar dari ingatan. Bandingkan. Ulangi. Ini jauh lebih efektif dari menjiplak karena melatih <em>visual memory</em> lu.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">📐</span>
-          <div class="step-text">
-            <strong>Konsistensi ukuran 2 mata</strong>
-            <p>Kesalahan umum pemula: mata kanan dan kiri ukurannya beda. Gambar kotak panduan (bounding box) untuk tiap mata sebelum mulai — pastikan kotak kiri dan kanan sama besar.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Ingat:</strong> Mata adalah pusat ekspresi karakter. Kuasai struktur mata dengan benar sebelum lanjut — ini investasi jangka panjang yang paling penting di awal belajar.</div>
+    <div class="tool-card" onclick="showModal('Just Sketch Me','Website latihan pose 3D.','https://justsketch.me','https://www.google.com/s2/favicons?domain=justsketch.me&sz=64')">
+      <img src="https://www.google.com/s2/favicons?domain=justsketch.me&sz=64" style="width:36px;height:36px;border-radius:8px;margin-bottom:8px;">
+      <h4>Just Sketch Me</h4>
+      <p>Latihan pose dengan karakter 3D berpakaian. Gratis & aman.</p>
+    </div>
+    <div class="tool-card" onclick="showModal('Pinterest','Cari referensi pose, ekspresi, dan gaya gambar.','https://play.google.com/store/apps/details?id=com.pinterest','https://www.google.com/s2/favicons?domain=pinterest.com&sz=64')">
+      <img src="https://www.google.com/s2/favicons?domain=pinterest.com&sz=64" style="width:36px;height:36px;border-radius:8px;margin-bottom:8px;">
+      <h4>Pinterest</h4>
+      <p>Cari referensi pose, ekspresi, gaya gambar. Simpan ke board khusus.</p>
+    </div>
+    <div class="tool-card" onclick="showVideoGallery()">
+      <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" style="width:36px;height:36px;border-radius:8px;margin-bottom:8px;">
+      <h4>YouTube</h4>
+      <p>16 video tutorial pilihan — terurut per fase belajar.</p>
     </div>
   </div>
 
-  <!-- FASE 4 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number green">4</div>
-      <div class="phase-title">
-        <div class="week">Minggu 7–8</div>
-        <h2>Rambut</h2>
-      </div>
-      <span>▼</span>
-    </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">📍</span>
-          <div class="step-text">
-            <strong>Crown point — titik asal rambut</strong>
-            <p>Sebelum menggambar rambut apapun, tandai 1–2 titik di atas kepala sebagai "sumber". Semua helai dan gumpalan rambut berasal dari titik ini — tanpa aturan ini rambut akan keliatan kacau dan tidak natural.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🖌️</span>
-          <div class="step-text">
-            <strong>Gambar per kelompok (clump), bukan per helai</strong>
-            <p>Kesalahan pemula: menggambar rambut helai satu-satu. Yang benar: gambar <em>gumpalan besar</em> dulu (silhouette rambut keseluruhan) → lalu tambah 3–5 garis detail di dalam setiap gumpalan. Ini teknik semua ilustrator profesional.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">↓</span>
-          <div class="step-text">
-            <strong>Arah rambut mengikuti gravitasi + bentuk kepala</strong>
-            <p>Bagian atas kepala (dekat crown): rambut menempel mengikuti lekukan skull. Bagian tengah: mulai jatuh. Bagian ujung: lebih bebas, bisa ada pergerakan. Rambut <em>tidak</em> tumbuh ke atas kecuali ada alasan (gel, angin, karakter spesifik).</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">✨</span>
-          <div class="step-text">
-            <strong>Highlight rambut dengan blending mode</strong>
-            <p>Buat layer baru di <em>atas</em> layer rambut → set ke mode <strong>"Add"</strong> atau <strong>"Screen"</strong>. Gambar garis terang memanjang di area yang kena cahaya (biasanya bagian atas kepala). Hasilnya langsung terlihat berkilau tanpa harus ubah warna dasar.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🎨</span>
-          <div class="step-text">
-            <strong>Shadow rambut dengan Multiply</strong>
-            <p>Layer baru → mode <strong>"Multiply"</strong> → warna gelap sedikit transparan (opacity 40–60%) → warnai area yang tidak kena cahaya, terutama bagian bawah gumpalan dan area di sekitar telinga.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Ingat:</strong> Rambut yang bagus bukan soal banyaknya helai yang digambar, tapi soal arah dan shape gumpalan yang benar. Silhouette yang kuat = rambut yang keren.</div>
-    </div>
-  </div>
-
-  <!-- FASE 5 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number purple">5</div>
-      <div class="phase-title">
-        <div class="week">Minggu 9–10</div>
-        <h2>Proporsi Tubuh & Gesture</h2>
-      </div>
-      <span>▼</span>
-    </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">📐</span>
-          <div class="step-text">
-            <strong>Sistem satuan kepala (head unit)</strong>
-            <p>Ukur tinggi kepala karakter → itu jadi satuan. <strong>Gaya anime:</strong> tubuh = 6–7× kepala. <strong>Realis/semi-realis:</strong> 7–8× kepala. Buat kotak-kotak panduan dulu sebelum isi tubuhnya — ini mencegah karakter yang "out of proportion".</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🦴</span>
-          <div class="step-text">
-            <strong>Gesture drawing — skeleton dulu</strong>
-            <p>Jangan langsung gambar detail. Mulai dengan <em>stick figure</em>: kepala = lingkaran, tulang belakang = garis, bahu = garis horizontal, pinggul = garis horizontal lebih kecil, anggota = garis. Ini disebut gesture — fondasi pose yang benar.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">📦</span>
-          <div class="step-text">
-            <strong>Blockout dengan bentuk 3D sederhana</strong>
-            <p>Di atas gesture, gambar kotak/silinder untuk tiap bagian: dada = kotak besar, pinggul = kotak lebih kecil, paha & betis = silinder, lengan = silinder. Ini membantu kamu "lihat" tubuh sebagai objek 3D, bukan gambar datar.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">📌</span>
-          <div class="step-text">
-            <strong>Landmark tubuh yang wajib hafal</strong>
-            <p>Siku sejajar dengan pusar. Pergelangan tangan sejajar dengan selangkangan. Lutut di tengah antara pinggul dan lantai. Titik-titik ini berlaku untuk hampir semua proporsi karakter.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🌐</span>
-          <div class="step-text">
-            <strong>Latihan di Line of Action</strong>
-            <p>Buka <strong>line-of-action.com</strong> di HP. Pilih "Figure" → timer 30 detik per pose. Gambar gesture cepat sebanyak mungkin — jangan mikir detail, fokus ke overall shape dan pose. 10 menit latihan ini setara 1 jam gambar biasa.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Ingat:</strong> Proporsi yang salah tidak bisa ditutupin dengan detail yang bagus. Luangkan waktu lebih di fase ini — waktunya worth it.</div>
-    </div>
-  </div>
-
-  <!-- FASE 6 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number orange">6</div>
-      <div class="phase-title">
-        <div class="week">Minggu 11–12</div>
-        <h2>Tangan & Jari</h2>
-      </div>
-      <span>▼</span>
-    </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">✋</span>
-          <div class="step-text">
-            <strong>Telapak = persegi panjang + jempol di samping</strong>
-            <p>Telapak tangan bukan lingkaran — lebih seperti persegi panjang agak membulat. Jempol berasal dari <em>sisi bawah-samping</em> telapak (bukan dari atas bersama 4 jari lain). Ini kesalahan paling sering pemula.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🔲</span>
-          <div class="step-text">
-            <strong>Setiap jari = 3 segmen (falang)</strong>
-            <p>Jari terdiri dari 3 ruas dengan sendi di tiap sambungan. Panjang ruas dari bawah ke ujung: <em>panjang → sedang → pendek</em>. Jari tengah terpanjang, kelingking terpendek. Ujung jari membulat, bukan kotak.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">📏</span>
-          <div class="step-text">
-            <strong>Ujung jari membentuk kurva melengkung</strong>
-            <p>Saat tangan terbuka dan rileks, ujung 4 jari (kecuali jempol) membentuk kurva seperti busur — bukan garis lurus. Ini yang bikin tangan terlihat natural dan tidak kaku.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🤳</span>
-          <div class="step-text">
-            <strong>Foto tangan sendiri sebagai referensi</strong>
-            <p>Foto tanganmu sendiri dengan berbagai pose pakai kamera HP. Pakai sebagai referensi saat menggambar — ini cara paling efektif dan gratis. Atau gunakan <strong>Just Sketch Me</strong> (justsketch.me) untuk pose tangan 3D.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🔁</span>
-          <div class="step-text">
-            <strong>5 pose dasar yang wajib dikuasai</strong>
-            <p>Mengepal, tangan terbuka menghadap depan, menunjuk (1 jari), memegang objek bulat (seperti pegang bola), dan pose peace/V. Kuasai 5 ini dulu dari referensi, baru coba dari imajinasi.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Ingat:</strong> Tangan adalah bagian paling susah di anatomi manusia. Jangan frustasi — bahkan seniman pro masih pakai referensi untuk tangan. Itu normal.</div>
-    </div>
-  </div>
-
-  <!-- FASE 7 -->
-  <div class="phase">
-    <div class="phase-header" onclick="togglePhase(this)">
-      <div class="phase-number">7</div>
-      <div class="phase-title">
-        <div class="week">Minggu 13–14</div>
-        <h2>Line Art, Warna & Shading</h2>
-      </div>
-      <span>▼</span>
-    </div>
-    <div class="phase-content">
-      <ul class="step-list">
-        <li>
-          <span class="step-icon">🖊️</span>
-          <div class="step-text">
-            <strong>Line art bersih dengan variasi ketebalan</strong>
-            <p>Outline luar = <strong>tebal</strong>. Detail dalam (lipatan baju, detail wajah, interior rambut) = <strong>tipis</strong>. Garis yang lebih dekat ke kamera bisa sedikit lebih tebal. Variasi ini yang membedakan gambar amatir dan gambar yang terlihat profesional.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🗂️</span>
-          <div class="step-text">
-            <strong>Sistem layer yang benar — wajib diikuti</strong>
-            <p>Urutan dari bawah ke atas: <strong>(1) Rough Sketch</strong> (opacity rendah) → <strong>(2) Line Art</strong> → <strong>(3) Base Color</strong> (satu layer per area warna) → <strong>(4) Shadow</strong> (mode Multiply) → <strong>(5) Highlight</strong> (mode Add/Screen). Beri nama tiap layer. Tanpa sistem ini, file akan kacau semakin kompleks gambarnya.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🎨</span>
-          <div class="step-text">
-            <strong>Color theory dasar — jangan asal pilih warna</strong>
-            <p>Hindari warna terlalu jenuh (saturation 100%) untuk base color — hasilnya akan "menusuk mata". Turunkan saturation sedikit. Untuk shadow, jangan pakai hitam murni — pakai versi lebih gelap + sedikit biru atau ungu. Warna shadow yang menarik biasanya agak <em>cool tone</em>.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">🌑</span>
-          <div class="step-text">
-            <strong>Shading dasar — cel shading</strong>
-            <p>Tentukan sumber cahaya <em>sebelum mulai</em> (misal: kiri atas). Buat layer baru dengan mode <strong>Multiply</strong> → clip ke layer base color → warnai area yang tidak kena cahaya dengan warna gelap transparan (opacity 50–70%). Gunakan satu warna shadow yang konsisten untuk semua area.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">✨</span>
-          <div class="step-text">
-            <strong>Highlight untuk kedalaman</strong>
-            <p>Layer baru mode <strong>Add</strong> atau <strong>Screen</strong> → gambar highlight di area yang paling terkena cahaya langsung: ujung hidung, dahi, bahu, rambut bagian atas. Highlight kecil tapi akurat = perbedaan besar di hasil akhir.</p>
-          </div>
-        </li>
-        <li>
-          <span class="step-icon">📤</span>
-          <div class="step-text">
-            <strong>Export yang benar</strong>
-            <p>Untuk share di sosmed: export PNG, ukuran asli. Untuk dijadikan referensi progress: simpan file asli (.ibis) juga. Jangan export JPEG untuk lineart — kompresi JPEG merusak kualitas garis.</p>
-          </div>
-        </li>
-      </ul>
-      <div class="tip-box">💡 <strong>Ingat:</strong> Gambar digital yang bagus bukan soal tool yang mahal, tapi soal fondasi yang kuat. Kalau fase 1–6 sudah solid, fase ini akan terasa natural.</div>
-    </div>
-  </div>
-
+  <footer><p>Dibuat dengan ❤️ · Konsisten > Berbakat · Selamat belajar!</p></footer>
 </div>
 
-<!-- Daily Routine -->
-<div class="routine">
-  <h3>⏱️ Rutinitas Harian (30 Menit)</h3>
-  <div class="routine-items">
-    <div class="routine-item">
-      <span class="routine-time">5 menit</span>
-      <span class="routine-desc">Latihan garis & bentuk dasar (warm-up)</span>
+<!-- ═══ PHASE MODAL ═══ -->
+<div class="phase-modal-overlay" id="phaseOverlay" onclick="overlayClose(event)">
+  <div class="phase-modal" id="phaseModal" role="dialog" aria-modal="true">
+    <div class="modal-topbar">
+      <div class="modal-phase-badge" id="mBadge">1</div>
+      <div class="modal-phase-info">
+        <div class="mweek" id="mWeek"></div>
+        <h3 id="mTitle"></h3>
+      </div>
+      <button class="modal-close" onclick="closePhaseModal()" aria-label="Tutup">✕</button>
     </div>
-    <div class="routine-item">
-      <span class="routine-time">15 menit</span>
-      <span class="routine-desc">Latihan fokus sesuai fase minggu ini</span>
-    </div>
-    <div class="routine-item">
-      <span class="routine-time">10 menit</span>
-      <span class="routine-desc">Gambar bebas / coba ulang dari referensi</span>
+    <div id="modalDots" style="display:flex;gap:5px;justify-content:center;padding:8px 0 4px;border-bottom:1px solid var(--border);flex-shrink:0;"></div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-nav">
+      <button class="btn-nav" id="btnPrev" onclick="navPhase(-1)">‹ Prev</button>
+      <span class="nav-info" id="navInfo"></span>
+      <button class="btn-nav" id="btnNext" onclick="navPhase(1)">Next ›</button>
     </div>
   </div>
 </div>
 
-<!-- Tools -->
-<div style="max-width:680px;margin:20px auto 0;">
-  <p style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">Aplikasi yang dibutuhkan</p>
-</div>
-<div class="tools">
-  <div class="tool-card clickable" onclick="showModal('Ibis Paint X','Kamu akan diarahkan ke halaman download Ibis Paint X di Play Store.','https://play.google.com/store/apps/details?id=jp.ne.ibis.ibispaintx.app','https://www.google.com/s2/favicons?domain=ibispaint.com&sz=64')">
-    <img src="https://www.google.com/s2/favicons?domain=ibispaint.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
-    <h4>Ibis Paint X</h4>
-    <p>Aplikasi utama. Gratis, fitur lengkap, paling populer untuk gambar digital di HP.</p>
-  </div>
-  <div class="tool-card clickable" onclick="showModal('Just Sketch Me','Kamu akan diarahkan ke website latihan pose dengan karakter 3D berpakaian.','https://justsketch.me','https://www.google.com/s2/favicons?domain=justsketch.me&sz=64')">
-    <img src="https://www.google.com/s2/favicons?domain=justsketch.me&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
-    <h4>Just Sketch Me</h4>
-    <p>justsketch.me — latihan pose dengan karakter 3D berpakaian. Gratis & aman.</p>
-  </div>
-  <div class="tool-card clickable" onclick="showModal('Pinterest','Kamu akan diarahkan ke halaman download Pinterest di Play Store.','https://play.google.com/store/apps/details?id=com.pinterest','https://www.google.com/s2/favicons?domain=pinterest.com&sz=64')">
-    <img src="https://www.google.com/s2/favicons?domain=pinterest.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
-    <h4>Pinterest</h4>
-    <p>Cari referensi pose, ekspresi, dan gaya gambar. Simpan ke board khusus belajar.</p>
-  </div>
-  <div class="tool-card clickable" onclick="showVideoGallery()">
-    <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" style="width:40px;height:40px;border-radius:10px;margin-bottom:8px;">
-    <h4>YouTube</h4>
-    <p>12 video tutorial pilihan — terurut per fase belajar. Tap untuk lihat daftar.</p>
-  </div>
-</div>
-
-<footer>
-  <p>Dibuat dengan ❤️ · Konsisten > Berbakat · Selamat belajar!</p>
-</footer>
-
-<!-- Video Gallery Modal -->
-<div class="modal-overlay" id="videoGalleryOverlay" onclick="closeVideoGallery(event)" style="align-items:flex-start;padding:0;">
-  <div id="videoGalleryBox" style="background:#1a1a24;width:100%;max-width:680px;margin:0 auto;max-height:100vh;overflow-y:auto;border-radius:0 0 20px 20px;padding:20px 16px 32px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:sticky;top:0;background:#1a1a24;padding:12px 0 8px;z-index:10;border-bottom:1px solid #2a2a3a;">
-      <h3 style="font-size:16px;color:#e8c84a;">📺 Video Tutorial per Fase</h3>
-      <button onclick="document.getElementById('videoGalleryOverlay').classList.remove('open')" style="background:#2a2a3a;border:none;color:#8888aa;font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer;line-height:1;">✕</button>
-    </div>
-    <div id="videoGalleryContent"></div>
-  </div>
-</div>
-
-<!-- Modal -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+<!-- ═══ LINK MODAL ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeLinkModal(event)">
   <div class="modal-box">
-    <img id="modalIcon" class="modal-icon" src="">
+    <img id="modalIcon" class="modal-icon" src="" alt="">
     <h3 id="modalTitle"></h3>
     <p id="modalDesc"></p>
     <div class="url-preview" id="modalUrl"></div>
     <div class="modal-buttons">
       <button class="btn-cancel" onclick="document.getElementById('modalOverlay').classList.remove('open')">Batal</button>
-      <button class="btn-go" id="modalBtn" onclick="goToLink()">Buka Sekarang</button>
+      <button class="btn-go" onclick="goToLink()">Buka Sekarang</button>
     </div>
   </div>
 </div>
 
-<script src="script.js"></script>
+<!-- ═══ VIDEO GALLERY ═══ -->
+<div class="vg-overlay" id="vgOverlay" onclick="closeVG(event)">
+  <div class="vg-box" id="vgBox">
+    <div class="vg-header">
+      <h3>📺 Video Tutorial per Fase</h3>
+      <button class="btn-icon" onclick="document.getElementById('vgOverlay').classList.remove('open')" aria-label="Tutup">✕</button>
+    </div>
+    <div class="vg-content" id="vgContent"></div>
+  </div>
+</div>
 
+<script src="js/app.js"></script>
 </body>
 </html>
